@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Freedom On Own Terms</title>
+  <defs>
+    <radialGradient id="spark">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.25" stop-color="#bae6fd" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="50" cy="50" rx="30" ry="9" transform="rotate(-45 50 50)" fill="none" stroke="#38bdf8" stroke-opacity="0.35" stroke-width="1.2"/>
+  <polygon points="50,50 88,8 92,12" fill="url(#beam)"/>
+  <polygon points="50,50 12,92 8,88" fill="url(#beam)"/>
+  <circle cx="50" cy="50" r="20" fill="url(#spark)"/>
+  <circle cx="50" cy="50" r="4" fill="#ffffff"/>
+</svg>
