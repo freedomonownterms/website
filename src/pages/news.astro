@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { getNews, TOPIC_NAMES, FEEDS } from '../lib/news.js';
+
+const news = (await getNews()).slice(0, 90);
+const topics = TOPIC_NAMES.filter((t) => news.some((n) => n.topic === t));
+---
+
+<Base title="AI News" description="The latest artificial intelligence news from trusted sources, updated daily.">
+  <section class="container page-head">
+    <h1>Latest <span class="gradient-text">AI news</span></h1>
+    <p>Headlines from {FEEDS.length} trusted AI news sources, refreshed every day. Click any story to read it on the original site.</p>
+  </section>
+
+  <section class="container">
+    <div class="filters" role="group" aria-label="Filter by topic">
+      <button class="filter-btn active" data-filter="all">All</button>
+      {topics.map((t) => <button class="filter-btn" data-filter={t}>{t}</button>)}
+    </div>
+    {news.length ? (
+      <div class="grid" id="news-grid">{news.map((item) => <NewsCard item={item} />)}</div>
+    ) : (
+      <p class="empty">News is refreshing. Check back shortly.</p>
+    )}
+  </section>
+</Base>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('#news-grid > article');
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.classList.toggle('active', b === btn));
+      const f = btn.dataset.filter;
+      cards.forEach((c) => (c.hidden = f !== 'all' && c.dataset.topic !== f));
+    }),
+  );
+</script>

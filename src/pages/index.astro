@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsCard from '../components/NewsCard.astro';
+import ToolCard from '../components/ToolCard.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { getNews } from '../lib/news.js';
+import { getGuides, formatDate } from '../lib/guides.js';
+import { tools } from '../data/tools.js';
+
+const news = (await getNews()).slice(0, 6);
+const featured = tools.filter((t) => t.featured).slice(0, 6);
+const guides = getGuides().slice(0, 3);
+---
+
+<Base>
+  <section class="hero container">
+    <span class="chip">Updated daily</span>
+    <h1>AI news, tools &amp; know-how —<br /><span class="gradient-text">on your own terms.</span></h1>
+    <p class="lead">
+      Keep up with what's happening in artificial intelligence, find the tools that are actually useful, and learn how to
+      put them to work in your life and business.
+    </p>
+    <div class="cta">
+      <a href="/news/" class="btn primary">Read the latest news</a>
+      <a href="/tools/" class="btn">Explore AI tools</a>
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <h2>Latest AI news</h2>
+      <a href="/news/">All news →</a>
+    </div>
+    {news.length ? (
+      <div class="grid">{news.map((item) => <NewsCard item={item} />)}</div>
+    ) : (
+      <p class="empty">News is refreshing. Check back shortly.</p>
+    )}
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <h2>Featured AI tools</h2>
+      <a href="/tools/">Full directory →</a>
+    </div>
+    <div class="grid">{featured.map((tool) => <ToolCard tool={tool} />)}</div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <h2>Practical guides</h2>
+      <a href="/guides/">All guides →</a>
+    </div>
+    <div class="grid">
+      {guides.map((g) => (
+        <a href={`/guides/${g.slug}/`} class="card guide-card">
+          <span class="chip violet">{g.category}</span>
+          <h3>{g.title}</h3>
+          <p class="muted">{g.description}</p>
+          <span class="muted small">{formatDate(g.date)} · {g.readTime}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <Newsletter />
+</Base>
+
+<style>
+  .hero { padding-top: 88px; padding-bottom: 40px; }
+  .hero h1 { margin: 18px 0 20px; }
+  .lead { font-size: 1.2rem; color: var(--muted); max-width: 640px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .guide-card { color: var(--text); display: flex; flex-direction: column; gap: 10px; }
+  .guide-card:hover { text-decoration: none; }
+  .guide-card h3, .guide-card p { margin: 0; }
+  .small { font-size: 0.85rem; }
+  @media (max-width: 600px) { .hero { padding-top: 56px; } }
+</style>

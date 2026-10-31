@@ -1,0 +1,51 @@
+---
+const { tool } = Astro.props;
+---
+
+<article class="card tool-card" data-category={tool.category} data-search={`${tool.name} ${tool.category} ${tool.description} ${tool.useCases.join(' ')}`.toLowerCase()}>
+  <div class="top">
+    <div class="icon" aria-hidden="true">{tool.name.charAt(0)}</div>
+    <div>
+      <h3><a href={tool.url} target="_blank" rel="noopener noreferrer">{tool.name}</a></h3>
+      <span class="muted maker">{tool.maker}</span>
+    </div>
+  </div>
+  <p>{tool.description}</p>
+  <ul>
+    {tool.useCases.map((u) => <li>{u}</li>)}
+  </ul>
+  <div class="tags">
+    <span class="chip violet">{tool.category}</span>
+    <span class="chip">{tool.pricing}</span>
+  </div>
+</article>
+
+<style>
+  .tool-card { display: flex; flex-direction: column; }
+  .top { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--gradient);
+    color: #0a0b10;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+  h3 { margin: 0; }
+  h3 a { color: var(--text); }
+  h3 a:hover { color: var(--accent); text-decoration: none; }
+  .maker { font-size: 0.85rem; }
+  p { font-size: 0.95rem; color: var(--muted); }
+  ul {
+    margin: 0 0 16px;
+    padding-left: 1.1em;
+    font-size: 0.9rem;
+    flex: 1;
+  }
+  .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>

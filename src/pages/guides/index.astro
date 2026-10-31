@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getGuides, formatDate } from '../../lib/guides.js';
+
+const guides = getGuides();
+---
+
+<Base title="Guides" description="Practical, plain-English guides to using AI tools at work and in everyday life.">
+  <section class="container page-head">
+    <h1>Practical <span class="gradient-text">AI guides</span></h1>
+    <p>Plain-English, step-by-step guides to getting real value from AI. No jargon required.</p>
+  </section>
+
+  <section class="container">
+    <div class="list">
+      {guides.map((g) => (
+        <a href={`/guides/${g.slug}/`} class="card row">
+          <div>
+            <span class="chip violet">{g.category}</span>
+            <h2>{g.title}</h2>
+            <p class="muted">{g.description}</p>
+          </div>
+          <span class="muted small">{formatDate(g.date)} · {g.readTime}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .list { display: flex; flex-direction: column; gap: 16px; }
+  .row { color: var(--text); display: block; }
+  .row:hover { text-decoration: none; }
+  h2 { font-size: 1.4rem; margin: 12px 0 8px; }
+  .small { font-size: 0.85rem; }
+</style>

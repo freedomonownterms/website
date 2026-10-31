@@ -1,0 +1,41 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <div class="container inner">
+    <div>
+      <strong>Freedom On Own Terms</strong>
+      <p class="muted">AI news, tools, and know-how — on your own terms.</p>
+    </div>
+    <nav>
+      <a href="/news/">News</a>
+      <a href="/tools/">Tools</a>
+      <a href="/guides/">Guides</a>
+      <a href="/about/">About</a>
+      <a href="/contact/">Contact</a>
+    </nav>
+  </div>
+  <div class="container copy muted">
+    © {year} freedomonownterms.com · News headlines link to their original publishers.
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: 64px;
+    border-top: 1px solid var(--border);
+    padding-top: 40px;
+    padding-bottom: 28px;
+  }
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  nav a { color: var(--muted); }
+  nav a:hover { color: var(--text); }
+  .copy { font-size: 0.85rem; margin-top: 16px; }
+</style>

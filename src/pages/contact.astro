@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Change this to the inbox you want messages to go to.
+const email = 'hello@freedomonownterms.com';
+---
+
+<Base title="Contact" description="Get in touch with Freedom On Own Terms: suggest a tool, share a story, or ask a question.">
+  <section class="container page-head">
+    <h1>Get in <span class="gradient-text">touch</span></h1>
+    <p>Suggest an AI tool, share a news tip, ask a question, or ask to be notified when the newsletter launches.</p>
+  </section>
+
+  <section class="container">
+    <div class="card contact">
+      <h2>Email us</h2>
+      <p class="muted">We read every message.</p>
+      <a href={`mailto:${email}`} class="btn primary">{email}</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact { max-width: 560px; padding: 32px; }
+  .contact:hover { transform: none; }
+</style>

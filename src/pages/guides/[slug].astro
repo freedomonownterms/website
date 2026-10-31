@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getGuides, formatDate } from '../../lib/guides.js';
+
+export function getStaticPaths() {
+  return getGuides().map((guide) => ({ params: { slug: guide.slug }, props: { guide } }));
+}
+
+const { guide } = Astro.props;
+const { Content } = guide;
+---
+
+<Base title={guide.title} description={guide.description}>
+  <article class="container">
+    <header class="page-head">
+      <a href="/guides/" class="back">← All guides</a>
+      <span class="chip violet">{guide.category}</span>
+      <h1>{guide.title}</h1>
+      <p>{guide.description}</p>
+      <span class="muted small">{formatDate(guide.date)} · {guide.readTime}</span>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .back { display: block; margin-bottom: 20px; font-size: 0.9rem; }
+  h1 { margin-top: 16px; max-width: 820px; }
+  .small { font-size: 0.9rem; }
+</style>

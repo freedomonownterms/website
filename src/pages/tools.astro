@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolCard from '../components/ToolCard.astro';
+import { tools, categories } from '../data/tools.js';
+---
+
+<Base title="AI Tools Directory" description="A curated directory of the best AI tools for writing, images, video, audio, coding, research, and productivity.">
+  <section class="container page-head">
+    <h1>AI tools <span class="gradient-text">directory</span></h1>
+    <p>{tools.length} hand-picked AI tools, what they're good for, and what they cost. Filter by category or search for a task.</p>
+  </section>
+
+  <section class="container">
+    <input type="search" class="search" id="tool-search" placeholder="Search tools, e.g. &quot;voiceover&quot; or &quot;summarize&quot;" aria-label="Search tools" />
+    <div class="filters" role="group" aria-label="Filter by category">
+      <button class="filter-btn active" data-filter="all">All</button>
+      {categories.map((c) => <button class="filter-btn" data-filter={c}>{c}</button>)}
+    </div>
+    <div class="grid" id="tool-grid">{tools.map((tool) => <ToolCard tool={tool} />)}</div>
+    <p class="empty" id="no-results" hidden>No tools match that search.</p>
+    <p class="muted note">Pricing changes often. Check each tool's website for current plans.</p>
+  </section>
+</Base>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('#tool-grid > article');
+  const search = document.getElementById('tool-search') as HTMLInputElement;
+  const empty = document.getElementById('no-results')!;
+  let category = 'all';
+
+  function apply() {
+    const q = search.value.trim().toLowerCase();
+    let shown = 0;
+    cards.forEach((c) => {
+      const match = (category === 'all' || c.dataset.category === category) && (!q || c.dataset.search!.includes(q));
+      c.hidden = !match;
+      if (match) shown++;
+    });
+    empty.hidden = shown > 0;
+  }
+
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.classList.toggle('active', b === btn));
+      category = btn.dataset.filter!;
+      apply();
+    }),
+  );
+  search.addEventListener('input', apply);
+</script>
+
+<style>
+  .note { font-size: 0.85rem; margin-top: 24px; }
+</style>

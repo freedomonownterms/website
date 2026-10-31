@@ -1,0 +1,30 @@
+---
+const { item } = Astro.props;
+const date = item.date
+  ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  : '';
+---
+
+<article class="card news-card" data-topic={item.topic}>
+  <div class="meta">
+    <span class="chip">{item.topic}</span>
+    <span class="muted">{item.source}{date && ` · ${date}`}</span>
+  </div>
+  <h3><a href={item.link} target="_blank" rel="noopener noreferrer">{item.title}</a></h3>
+  {item.summary && <p class="muted">{item.summary}</p>}
+</article>
+
+<style>
+  .news-card { display: flex; flex-direction: column; }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+  }
+  h3 a { color: var(--text); }
+  h3 a:hover { color: var(--accent); text-decoration: none; }
+  p { font-size: 0.93rem; margin: 0; }
+</style>
