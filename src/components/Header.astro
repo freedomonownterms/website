@@ -12,7 +12,10 @@ const path = Astro.url.pathname;
 <header class="site-header">
   <div class="container bar">
     <a href="/" class="logo" aria-label="Freedom On Own Terms home">
-      <img src="/logo.svg?v=4" alt="" width="40" height="40" />
+      <span class="mark">
+        <img src="/logo.svg?v=4" alt="" width="40" height="40" />
+        <sup class="tm" title="Trademark">™</sup>
+      </span>
       <span>Freedom <span class="gradient-text">On Own Terms</span></span>
     </a>
     <button class="menu-btn" aria-label="Toggle menu" aria-expanded="false" aria-controls="site-nav">
@@ -60,6 +63,17 @@ const path = Astro.url.pathname;
     font-size: 1.1rem;
   }
   .logo:hover { text-decoration: none; }
+  .mark { position: relative; display: inline-flex; }
+  .tm {
+    position: absolute;
+    top: -2px;
+    right: -9px;
+    font-family: var(--font-body, inherit);
+    font-size: 0.55rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--muted);
+  }
   nav { display: flex; gap: 6px; }
   nav a {
     color: var(--muted);
