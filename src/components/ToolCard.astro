@@ -1,12 +1,14 @@
 ---
 const { tool } = Astro.props;
+const href = tool.affiliateUrl || tool.url;
+const rel = tool.affiliateUrl ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
 ---
 
 <article class="card tool-card" data-category={tool.category} data-search={`${tool.name} ${tool.category} ${tool.description} ${tool.useCases.join(' ')}`.toLowerCase()}>
   <div class="top">
     <div class="icon" aria-hidden="true">{tool.name.charAt(0)}</div>
     <div>
-      <h3><a href={tool.url} target="_blank" rel="noopener noreferrer">{tool.name}</a></h3>
+      <h3><a href={href} target="_blank" rel={rel}>{tool.name}</a></h3>
       <span class="muted maker">{tool.maker}</span>
     </div>
   </div>

@@ -18,6 +18,9 @@ const year = new Date().getFullYear();
   </div>
   <div class="container copy muted">
     © {year} Freedom On Own Terms. All rights reserved. · News headlines link to their original publishers.
+    <span class="legal">
+      <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/disclosure/">Affiliate disclosure</a>
+    </span>
   </div>
 </footer>
 
@@ -38,4 +41,7 @@ const year = new Date().getFullYear();
   nav a { color: var(--muted); }
   nav a:hover { color: var(--text); }
   .copy { font-size: 0.85rem; margin-top: 16px; }
+  .legal { display: block; margin-top: 6px; }
+  .legal a { color: var(--muted); }
+  .legal a:hover { color: var(--text); }
 </style>

@@ -18,7 +18,10 @@ import { tools, categories } from '../data/tools.js';
     </div>
     <div class="grid" id="tool-grid">{tools.map((tool) => <ToolCard tool={tool} />)}</div>
     <p class="empty" id="no-results" hidden>No tools match that search.</p>
-    <p class="muted note">Pricing changes often. Check each tool's website for current plans.</p>
+    <p class="muted note">
+      Pricing changes often. Check each tool's website for current plans. Some links may be affiliate links, which means
+      we may earn a commission at no extra cost to you. <a href="/disclosure/">Learn more</a>.
+    </p>
   </section>
 </Base>
 

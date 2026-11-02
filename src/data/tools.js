@@ -1,5 +1,7 @@
 // The AI tools directory. Add a tool by copying one entry and editing it.
 // `featured: true` shows the tool on the home page.
+// `affiliateUrl` (optional): your affiliate/referral link. When set, the card links
+// there instead of `url` and the link is marked as sponsored.
 export const tools = [
   {
     name: 'ChatGPT',

@@ -1,10 +1,26 @@
+---
+import { site } from '../data/site.js';
+
+const embed = site.newsletterEmbedUrl;
+---
+
 <section class="container section">
   <div class="newsletter">
     <h2>Get the week in AI, <span class="gradient-text">in five minutes</span></h2>
-    <p class="muted">
-      A weekly email with the biggest AI news, one tool worth trying, and one practical tip. The newsletter is launching soon.
-    </p>
-    <a href="/contact/" class="btn primary">Ask to be notified</a>
+    {embed ? (
+      <>
+        <p class="muted">A weekly email with the biggest AI news, one tool worth trying, and one practical tip. Free, and you can unsubscribe any time.</p>
+        <iframe src={embed} title="Newsletter signup" loading="lazy" class="signup"></iframe>
+        <p class="fine muted">By subscribing you agree to our <a href="/privacy/">privacy policy</a>.</p>
+      </>
+    ) : (
+      <>
+        <p class="muted">
+          A weekly email with the biggest AI news, one tool worth trying, and one practical tip. The newsletter is launching soon.
+        </p>
+        <a href="/contact/" class="btn primary">Ask to be notified</a>
+      </>
+    )}
   </div>
 </section>
 
@@ -20,4 +36,15 @@
       var(--surface);
   }
   p { max-width: 560px; margin: 0 auto 24px; }
+  .signup {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    height: 150px;
+    margin: 0 auto;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+  }
+  .fine { font-size: 0.8rem; margin: 12px auto 0; }
 </style>
