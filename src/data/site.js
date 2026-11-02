@@ -5,4 +5,8 @@ export const site = {
   //   Substack: https://YOURNAME.substack.com/embed
   // Leave empty to show the "launching soon" message instead.
   newsletterEmbedUrl: '',
+
+  // Google Search Console verification. Paste only the "content" value from the
+  // HTML tag Google gives you: <meta name="google-site-verification" content="THIS_PART" />
+  googleSiteVerification: '',
 };

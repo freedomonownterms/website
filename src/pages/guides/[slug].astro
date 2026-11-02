@@ -10,7 +10,7 @@ const { guide } = Astro.props;
 const { Content } = guide;
 ---
 
-<Base title={guide.title} description={guide.description}>
+<Base title={guide.title} description={guide.description} type="article" published={guide.date}>
   <article class="container">
     <header class="page-head">
       <a href="/guides/" class="back">← All guides</a>

@@ -2,14 +2,48 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { site } from '../data/site.js';
 
 const {
   title,
   description = 'The latest AI news, the best AI tools, and practical guides to using them — on your own terms.',
+  type = 'website',
+  published,
+  noindex = false,
 } = Astro.props;
 
 const fullTitle = title ? `${title} · Freedom On Own Terms` : 'Freedom On Own Terms · AI News, Tools & Guides';
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const image = new URL('/icon-512.png', Astro.site);
+const publisher = {
+  '@type': 'Organization',
+  name: 'Freedom On Own Terms',
+  url: Astro.site.href,
+  logo: image.href,
+};
+
+// Structured data so search engines understand the site and its articles.
+const jsonLd =
+  type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description,
+        url: canonical.href,
+        image: image.href,
+        ...(published && { datePublished: new Date(published).toISOString() }),
+        author: publisher,
+        publisher,
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Freedom On Own Terms',
+        url: Astro.site.href,
+        description,
+        publisher,
+      };
 ---
 
 <!doctype html>
@@ -20,15 +54,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {site.googleSiteVerification && <meta name="google-site-verification" content={site.googleSiteVerification} />}
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" href="/favicon.ico?v=4" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=4" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
-    <meta property="og:image" content={new URL('/icon-512.png', Astro.site)} />
+    <meta property="og:site_name" content="Freedom On Own Terms" />
+    <meta property="og:image" content={image} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_IN" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     <meta name="theme-color" content="#0a0b10" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
