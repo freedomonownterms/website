@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import PromptCategories from '../../components/PromptCategories.astro';
+import { library } from '../../data/prompts.js';
+
+const total = library.reduce((n, s) => n + s.prompts.length, 0);
+---
+
+<Base
+  title={`AI Prompt Library: ${total}+ Free Prompts for ChatGPT, Gemini & Claude`}
+  description={`A free tool with ${total} copy-and-paste AI prompts for resumes, interviews, studying, email, business and more. Pick a category, fill in your details once, and copy or open straight in ChatGPT or Claude.`}
+  ogImage="/og/prompts.png"
+>
+  <section class="container head">
+    <h1>AI Prompt <span class="gradient-text">Library</span></h1>
+    <p class="muted">{total} free prompts for ChatGPT, Gemini, Claude and Copilot. Choose a category to get started.</p>
+  </section>
+
+  <section class="container">
+    <PromptCategories />
+    <p class="muted more">
+      Prefer a PDF? Download the free <a href="/shop/ai-career-kit/">AI Career Kit</a>. New to prompts? Read
+      <a href="/guides/how-to-write-better-ai-prompts/">how to write better AI prompts</a>.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .head { padding-top: 32px; padding-bottom: 22px; }
+  .head h1 { font-size: clamp(1.8rem, 3.2vw, 2.5rem); margin: 0 0 8px; }
+  .head p { margin: 0; }
+  .more { margin-top: 36px; font-size: 0.9rem; }
+</style>

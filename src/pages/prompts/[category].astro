@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import PromptWorkspace from '../../components/PromptWorkspace.astro';
+import { library } from '../../data/prompts.js';
+
+export function getStaticPaths() {
+  return library.map((section) => ({ params: { category: section.id }, props: { section } }));
+}
+
+const { section } = Astro.props;
+const n = section.prompts.length;
+---
+
+<Base
+  title={`${n} AI Prompts: ${section.title}`}
+  description={`${n} free copy-and-paste AI prompts for ${section.title.toLowerCase()}. ${section.intro} Fill in your details and use them in ChatGPT, Gemini, Claude or Copilot.`}
+  ogImage="/og/prompts.png"
+>
+  <section class="container head">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/prompts/">← All categories</a></nav>
+    <h1><span aria-hidden="true">{section.icon}</span> {section.title}</h1>
+    <p class="muted">{section.intro} Pick a prompt; your details fill in automatically.</p>
+  </section>
+
+  <section class="container">
+    <PromptWorkspace section={section} />
+    <p class="muted more">
+      Looking for something else? <a href="/prompts/">Browse all categories</a>, or download the free
+      <a href="/shop/ai-career-kit/">AI Career Kit PDF</a>.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .head { padding-top: 24px; padding-bottom: 18px; }
+  .head h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 0 0 6px; }
+  .head p { margin: 0; }
+  .crumbs { margin-bottom: 10px; font-size: 0.92rem; }
+  .more { margin-top: 28px; font-size: 0.9rem; }
+</style>

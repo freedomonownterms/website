@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
 import { products } from '../../data/products.js';
+import { highlight } from '../../lib/prompt-html.js';
 
 export function getStaticPaths() {
   return products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
@@ -10,7 +11,6 @@ export function getStaticPaths() {
 const { product: p } = Astro.props;
 const total = p.contents.reduce((n, [, count]) => n + count, 0);
 const preorder = `mailto:hello@freedomonownterms.com?subject=${encodeURIComponent(`Notify me: ${p.name}`)}`;
-const fill = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\[([^\]]+)\]/g, '<span class="ph">[$1]</span>');
 ---
 
 <Base title={`${p.name}: ${p.tagline}`} description={p.description} ogImage={`/og/${p.slug}.png`}>
@@ -65,7 +65,7 @@ const fill = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\[([
       {p.samples.map(([title, text]) => (
         <div class="sample">
           <h3>{title}</h3>
-          <p set:html={fill(text)} />
+          <p set:html={highlight(text)} />
         </div>
       ))}
     </div>

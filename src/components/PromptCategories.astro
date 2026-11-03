@@ -1,0 +1,110 @@
+---
+// Prompt Library home: search box + category tiles. Search results come from a small JSON index
+// and link straight to the prompt on its category page.
+import { library } from '../data/prompts.js';
+
+const index = library.flatMap((s) => s.prompts.map((p) => ({ id: p.id, cat: s.id, catTitle: s.title, icon: s.icon, title: p.title, text: p.text })));
+---
+
+<div class="cats-home">
+  <label class="searchbox">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" /><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+    <input type="search" class="psearch" placeholder="Search all prompts… e.g. resume, email, interview" aria-label="Search all prompts" autocomplete="off" />
+  </label>
+
+  <div class="results" hidden>
+    <p class="r-count muted"></p>
+    <div class="r-list"></div>
+  </div>
+
+  <table class="grid-cats">
+    <thead>
+      <tr><th>Category</th><th class="c-desc">What it helps with</th></tr>
+    </thead>
+    <tbody>
+      {library.map((s) => (
+        <tr>
+          <td><a href={`/prompts/${s.id}/`}>{s.title}</a></td>
+          <td class="c-desc muted">{s.intro}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<script type="application/json" id="prompt-index" set:html={JSON.stringify(index)} />
+
+<script>
+  type Entry = { id: string; cat: string; catTitle: string; icon: string; title: string; text: string };
+  const index: Entry[] = JSON.parse(document.getElementById('prompt-index')!.textContent!);
+  const root = document.querySelector<HTMLElement>('.cats-home')!;
+  const input = root.querySelector<HTMLInputElement>('.psearch')!;
+  const results = root.querySelector<HTMLElement>('.results')!;
+  const list = root.querySelector<HTMLElement>('.r-list')!;
+  const grid = root.querySelector<HTMLElement>('.grid-cats')!;
+
+  function run() {
+    const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+    results.hidden = !words.length;
+    grid.hidden = words.length > 0;
+    if (!words.length) return;
+    const hits = index.filter((e) => words.every((w) => `${e.title} ${e.text}`.toLowerCase().includes(w)));
+    root.querySelector('.r-count')!.textContent = hits.length ? `${hits.length} prompt${hits.length === 1 ? '' : 's'} found` : 'No prompts found. Try a simpler word like "email" or "resume".';
+    list.replaceChildren(
+      ...hits.map((e) => {
+        const a = document.createElement('a');
+        a.className = 'r-item';
+        a.href = `/prompts/${e.cat}/?p=${e.id}`;
+        const cat = document.createElement('span');
+        cat.className = 'r-cat';
+        cat.textContent = `${e.icon} ${e.catTitle}`;
+        const title = document.createElement('span');
+        title.className = 'r-title';
+        title.textContent = e.title;
+        const text = document.createElement('span');
+        text.className = 'r-text';
+        text.textContent = e.text;
+        a.append(cat, title, text);
+        return a;
+      }),
+    );
+  }
+  input.addEventListener('input', run);
+</script>
+
+<style>
+  .searchbox {
+    display: flex; align-items: center; gap: 10px; max-width: 680px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 4px 16px; color: var(--muted); margin-bottom: 28px;
+  }
+  .searchbox:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15); }
+  .psearch { flex: 1; min-width: 0; font: inherit; font-size: 1.05rem; color: var(--text); background: transparent; border: 0; padding: 13px 0; outline: none; }
+
+  .grid-cats { width: 100%; border-collapse: collapse; }
+  .grid-cats th {
+    text-align: left; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--border);
+  }
+  .grid-cats td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  /* The whole row is clickable: the category link stretches over it. */
+  .grid-cats tbody tr { position: relative; }
+  .grid-cats tbody tr:hover { background: var(--surface); }
+  .grid-cats td a { color: var(--text); font-weight: 600; text-decoration: none; }
+  .grid-cats td a::after { content: ''; position: absolute; inset: 0; }
+  .grid-cats tbody tr:hover td a { color: var(--accent); }
+  .c-desc { font-size: 0.92rem; }
+
+  @media (max-width: 600px) {
+    .c-desc, thead { display: none; }
+    .grid-cats td { padding: 13px 10px; }
+  }
+
+  .r-count { margin: 0 0 12px; }
+  .r-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .r-list :global(.r-item) { display: flex; flex-direction: column; gap: 3px; padding: 14px 18px; color: var(--text); text-decoration: none; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .r-list :global(.r-item:last-child) { border-bottom: 0; }
+  .r-list :global(.r-item:hover) { background: var(--surface-2); text-decoration: none; }
+  .r-list :global(.r-cat) { color: var(--accent); font-size: 0.78rem; font-weight: 600; }
+  .r-list :global(.r-title) { font-weight: 600; }
+  .r-list :global(.r-text) { color: var(--muted); font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+</style>

@@ -1,0 +1,248 @@
+---
+// One category of the Prompt Library: prompt list on the left, workspace on the right.
+// The workspace auto-fills details the visitor has typed before (saved in their browser only).
+// Every prompt is real HTML in the list, so search engines can read it; the script adds the tool behaviour.
+const { section } = Astro.props;
+---
+
+<div class="tool">
+  <div class="panes">
+    <div class="list">
+      <p class="list-head muted">{section.prompts.length} prompts · pick one</p>
+      {section.prompts.map((p) => (
+        <button type="button" class="item" data-id={p.id} data-title={p.title} data-text={p.text}>
+          <span class="it-title">{p.title}</span>
+          <span class="it-text">{p.text}</span>
+        </button>
+      ))}
+    </div>
+
+    <section class="work" aria-live="polite">
+      <button type="button" class="back">← {section.title}</button>
+      <div class="work-head">
+        <span class="w-cat">{section.icon} {section.title}</span>
+        <h2 class="w-title"></h2>
+      </div>
+
+      <div class="step">
+        <p class="step-label"><span class="n">1</span> Your details <span class="autofilled"></span></p>
+        <div class="fields"></div>
+        <p class="nofields muted small" hidden>Nothing to fill in. This prompt is ready to use.</p>
+      </div>
+
+      <div class="step">
+        <p class="step-label"><span class="n">2</span> Your prompt <span class="blanks"></span></p>
+        <textarea class="output" rows="6" spellcheck="false" aria-label="Your finished prompt (you can edit it)"></textarea>
+      </div>
+
+      <div class="step">
+        <p class="step-label"><span class="n">3</span> Use it</p>
+        <div class="w-actions">
+          <button type="button" class="primary copy">Copy prompt</button>
+          <a class="open" data-to="chatgpt" target="_blank" rel="noopener noreferrer">Open in ChatGPT ↗</a>
+          <a class="open" data-to="claude" target="_blank" rel="noopener noreferrer">Open in Claude ↗</a>
+          <button type="button" class="reset">Clear my details</button>
+        </div>
+        <p class="muted small tip">Using Gemini or Copilot? Copy the prompt and paste it there. Your details are saved only in this browser and fill in automatically next time.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const FIELDS = 'fot-prompt-fields';
+  let values: Record<string, string> = {};
+  try { values = JSON.parse(localStorage.getItem(FIELDS) || '{}'); } catch {}
+  const save = () => { try { localStorage.setItem(FIELDS, JSON.stringify(values)); } catch {} };
+
+  type Field = { key: string; label: string; hint: string; long: boolean };
+
+  // Fill-in fields for a prompt. A bare "[paste]" is labelled by the words before it ("Resume: [paste]" → "Resume").
+  function fieldsOf(text: string): Field[] {
+    const out = new Map<string, Field>();
+    for (const m of text.matchAll(/\[([^\]]+)\]/g)) {
+      const inner = m[1].trim();
+      if (inner === '?') continue;
+      let label = inner;
+      if (/^paste\b/i.test(inner) && inner.split(' ').length <= 2) {
+        const before = text.slice(0, m.index).replace(/[:\s]+$/, '');
+        const words = before.split(/[.?!]\s+|\]\s*/).pop()!.split(/\s+/).slice(-3).join(' ');
+        if (words) label = words;
+      }
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+      const key = label.toLowerCase();
+      if (!out.has(key)) out.set(key, { key, label, hint: inner, long: /^(paste|list|describe)\b/i.test(inner) });
+    }
+    return [...out.values()];
+  }
+
+  function fill(text: string): string {
+    const fields = fieldsOf(text);
+    const used = new Map<string, number>();
+    return text.replace(/\[([^\]]+)\]/g, (whole, raw: string) => {
+      const inner = raw.trim();
+      if (inner === '?') return whole;
+      const same = fields.filter((f) => f.hint === inner);
+      const n = used.get(inner) ?? 0;
+      used.set(inner, n + 1);
+      const f = same.length > 1 ? same[Math.min(n, same.length - 1)] : same[0];
+      return (f && values[f.key]?.trim()) || whole;
+    });
+  }
+
+  const tool = document.querySelector<HTMLElement>('.tool')!;
+  const $ = <T extends Element = HTMLElement>(s: string) => tool.querySelector<T>(s)!;
+  const items = [...tool.querySelectorAll<HTMLButtonElement>('.item')];
+  const output = $<HTMLTextAreaElement>('.output');
+  const fieldsBox = $('.fields');
+  const isPhone = () => window.matchMedia('(max-width: 760px)').matches;
+  let current: HTMLButtonElement;
+
+  function render() {
+    output.value = fill(current.dataset.text!);
+    updateOutput();
+  }
+
+  function updateOutput() {
+    const left = (output.value.match(/\[[^\]?]+\]/g) || []).length;
+    const blanks = $('.blanks');
+    blanks.textContent = left ? `${left} blank${left === 1 ? '' : 's'} left` : '✓ ready to use';
+    blanks.classList.toggle('done', !left);
+    const q = encodeURIComponent(output.value);
+    tool.querySelectorAll<HTMLAnchorElement>('.open').forEach((a) => {
+      a.href = a.dataset.to === 'claude' ? `https://claude.ai/new?q=${q}` : `https://chatgpt.com/?q=${q}`;
+    });
+  }
+
+  function select(it: HTMLButtonElement, push = true) {
+    current = it;
+    items.forEach((i) => i.classList.toggle('selected', i === it));
+    $('.w-title').textContent = it.dataset.title!;
+
+    const fields = fieldsOf(it.dataset.text!);
+    const auto = fields.filter((f) => values[f.key]?.trim()).length;
+    $('.autofilled').textContent = auto ? `✓ ${auto} auto-filled from last time` : '';
+    $('.nofields').hidden = fields.length > 0;
+    fieldsBox.replaceChildren(
+      ...fields.map((f) => {
+        const wrap = document.createElement('label');
+        if (f.long) wrap.className = 'wide';
+        const span = document.createElement('span');
+        span.textContent = f.label;
+        const input = document.createElement(f.long ? 'textarea' : 'input') as HTMLInputElement | HTMLTextAreaElement;
+        input.placeholder = f.long ? 'Paste or type here…' : `e.g. ${f.hint}`;
+        input.value = values[f.key] ?? '';
+        if (input.value) wrap.classList.add('filled');
+        if (input instanceof HTMLTextAreaElement) input.rows = 3;
+        input.addEventListener('input', () => {
+          values[f.key] = input.value;
+          wrap.classList.toggle('filled', !!input.value.trim());
+          save();
+          render();
+        });
+        wrap.append(span, input);
+        return wrap;
+      }),
+    );
+    render();
+
+    if (push) {
+      const url = `${location.pathname}?p=${it.dataset.id}`;
+      // On phones the workspace is a full-screen view with its own history entry, so "back" closes it.
+      if (isPhone() && !tool.classList.contains('working')) history.pushState({ work: true }, '', url);
+      else history.replaceState(history.state, '', url);
+      tool.classList.add('working');
+      if (!isPhone()) fieldsBox.querySelector<HTMLElement>('label:not(.filled) input, label:not(.filled) textarea')?.focus({ preventScroll: true });
+    }
+  }
+
+  items.forEach((it) => it.addEventListener('click', () => select(it)));
+  output.addEventListener('input', updateOutput);
+  $('.back').addEventListener('click', () => (history.state?.work ? history.back() : tool.classList.remove('working')));
+  window.addEventListener('popstate', () => tool.classList.remove('working'));
+
+  $('.copy').addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLButtonElement;
+    try { await navigator.clipboard.writeText(output.value); btn.textContent = 'Copied ✓'; }
+    catch { output.select(); btn.textContent = 'Press Ctrl+C'; }
+    setTimeout(() => (btn.textContent = 'Copy prompt'), 1800);
+  });
+
+  $('.reset').addEventListener('click', () => {
+    for (const f of fieldsOf(current.dataset.text!)) delete values[f.key];
+    save();
+    select(current, false);
+  });
+
+  // Start with the prompt from the link (?p=...), or the first one.
+  const wanted = new URLSearchParams(location.search).get('p');
+  const start = items.find((i) => i.dataset.id === wanted);
+  select(start ?? items[0], false);
+  if (start) {
+    tool.classList.add('working');
+    start.scrollIntoView({ block: 'nearest' });
+  }
+</script>
+
+<style>
+  .panes {
+    display: grid; grid-template-columns: minmax(260px, 360px) 1fr;
+    border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: var(--surface);
+    height: max(540px, calc(100vh - 68px - 200px));
+  }
+  .list, .work { overflow-y: auto; min-height: 0; }
+
+  .list { border-right: 1px solid var(--border); background: var(--bg); }
+  .list-head { margin: 0; padding: 12px 18px; font-size: 0.82rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+  .item {
+    display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left; font: inherit; color: var(--text);
+    background: none; border: 0; border-bottom: 1px solid var(--border); padding: 13px 18px; cursor: pointer;
+  }
+  .item:hover { background: var(--surface); }
+  .item.selected { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
+  .it-title { font-weight: 600; font-size: 0.95rem; }
+  .it-text { color: var(--muted); font-size: 0.82rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .work { padding: 22px 26px 26px; display: flex; flex-direction: column; gap: 16px; }
+  .back { display: none; }
+  .w-cat { color: var(--accent); font-size: 0.8rem; font-weight: 600; }
+  .w-title { font-size: 1.45rem; margin: 4px 0 0; }
+
+  .step-label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; font-weight: 600; font-size: 0.95rem; }
+  .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gradient); color: #0a0b10; font-size: 0.75rem; }
+  .small { font-size: 0.8rem; font-weight: 400; }
+  .autofilled { font-size: 0.78rem; font-weight: 600; color: #34d399; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .fields :global(label) { display: flex; flex-direction: column; gap: 5px; font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+  .fields :global(label.wide) { grid-column: 1 / -1; }
+  .fields :global(input), .fields :global(textarea), .output {
+    font: inherit; font-size: 0.92rem; color: var(--text); background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 11px; resize: vertical; width: 100%;
+  }
+  .fields :global(label.filled input), .fields :global(label.filled textarea) { border-color: rgba(52, 211, 153, 0.5); }
+  .fields :global(input:focus), .fields :global(textarea:focus), .output:focus { outline: none; border-color: var(--accent); }
+  .output { line-height: 1.6; min-height: 120px; }
+  .blanks { font-size: 0.78rem; font-weight: 600; color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-radius: 999px; padding: 2px 10px; }
+  .blanks.done { color: #34d399; background: rgba(52, 211, 153, 0.1); }
+
+  .w-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .w-actions button, .w-actions a {
+    font: inherit; font-size: 0.92rem; color: var(--text); background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 999px; padding: 9px 18px; cursor: pointer; text-decoration: none;
+  }
+  .w-actions button:hover, .w-actions a:hover { border-color: var(--accent); color: var(--accent); }
+  .w-actions .primary { background: var(--gradient); border: 0; color: #0a0b10; font-weight: 700; padding: 10px 24px; }
+  .w-actions .primary:hover { color: #0a0b10; filter: brightness(1.08); }
+  .tip { margin: 10px 0 0; }
+
+  /* Phone: the list fills the page; tapping a prompt opens the workspace full screen, like an app. */
+  @media (max-width: 760px) {
+    .panes { display: block; height: auto; border-radius: 14px; }
+    .list { border-right: 0; }
+    .list-head { position: static; }
+    .work { display: none; }
+    .tool.working .work { display: flex; position: fixed; inset: 0; z-index: 100; background: var(--bg); padding: 16px 18px 28px; overflow-y: auto; }
+    .back { display: block; align-self: flex-start; font: inherit; color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer; }
+    .w-actions .primary { flex: 1 1 100%; padding: 14px; font-size: 1rem; }
+  }
+</style>
