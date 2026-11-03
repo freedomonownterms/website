@@ -9,7 +9,7 @@ export const products = [
     name: 'AI Career Kit',
     tagline: '75 ChatGPT prompts for students & job seekers',
     description:
-      'Copy-and-paste AI prompts for resumes, cover letters, LinkedIn, interviews, salary talks and exam prep. Written for students and job seekers in India.',
+      'Copy-and-paste AI prompts for resumes, cover letters, LinkedIn, interviews, salary talks and exam prep. Written for students and job seekers anywhere in the world.',
     price: 0,
     downloadUrl: '/downloads/AI-Career-Kit.pdf',
     buyUrl: '',
@@ -18,7 +18,7 @@ export const products = [
     contents: [
       ['Resumes that get shortlisted', 15],
       ['Cover letters & applications', 8],
-      ['LinkedIn & Naukri profiles', 7],
+      ['LinkedIn & job-site profiles', 7],
       ['Job search strategy', 7],
       ['Interview preparation', 15],
       ['Salary, offers & your first job', 5],
