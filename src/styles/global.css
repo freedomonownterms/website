@@ -202,6 +202,21 @@ p { margin: 0 0 1em; }
 .prose h3 { margin-top: 1.4em; }
 .prose ul, .prose ol { padding-left: 1.3em; }
 .prose li { margin-bottom: 0.4em; }
+.prose table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.4em 0;
+  font-size: 0.95rem;
+}
+.prose th, .prose td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.prose th { color: var(--text); background: var(--surface); font-weight: 600; }
+.prose td { color: var(--muted); }
 .prose blockquote {
   margin: 1.5em 0;
   padding: 12px 20px;
