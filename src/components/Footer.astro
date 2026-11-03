@@ -1,4 +1,6 @@
 ---
+import { site } from '../data/site.js';
+
 const year = new Date().getFullYear();
 ---
 
@@ -14,6 +16,7 @@ const year = new Date().getFullYear();
       <a href="/guides/">Guides</a>
       <a href="/about/">About</a>
       <a href="/contact/">Contact</a>
+      {site.socials.map((s) => <a href={s.url} target="_blank" rel="noopener me">{s.name}</a>)}
     </nav>
   </div>
   <div class="container copy muted">
