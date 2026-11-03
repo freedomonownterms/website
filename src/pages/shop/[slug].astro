@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
 import { products } from '../../data/products.js';
 
 export function getStaticPaths() {
@@ -12,7 +13,7 @@ const preorder = `mailto:hello@freedomonownterms.com?subject=${encodeURIComponen
 const fill = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\[([^\]]+)\]/g, '<span class="ph">[$1]</span>');
 ---
 
-<Base title={`${p.name}: ${p.tagline}`} description={p.description}>
+<Base title={`${p.name}: ${p.tagline}`} description={p.description} ogImage={`/og/${p.slug}.png`}>
   <section class="container hero">
     <img src={p.cover} alt={`${p.name} cover`} width="600" height="849" class="cover" />
     <div>
@@ -40,6 +41,10 @@ const fill = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\[([
       </div>
       <p class="muted small">{p.format}</p>
     </div>
+  </section>
+
+  <section class="container">
+    <ShareButtons title={`${p.name}: ${p.tagline} (free)`} label="Know someone job hunting? Share it" />
   </section>
 
   <section class="container section two">
