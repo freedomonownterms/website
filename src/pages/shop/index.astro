@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import { products } from '../../data/products.js';
+---
+
+<Base title="Shop" description="Practical AI prompt kits and guides from Freedom On Own Terms, made for students, job seekers and everyday people in India.">
+  <section class="container page-head">
+    <h1>AI kits that <span class="gradient-text">save you hours</span></h1>
+    <p>Ready-to-use prompt packs and guides. Pay once, download instantly, use them forever.</p>
+  </section>
+
+  <section class="container">
+    <div class="grid">
+      {products.map((p) => (
+        <a href={`/shop/${p.slug}/`} class="card product">
+          <img src={p.cover} alt={`${p.name} cover`} width="600" height="849" loading="lazy" />
+          <div>
+            <h2>{p.name}</h2>
+            <p class="muted">{p.tagline}</p>
+            <span class="price">{p.buyUrl ? `₹${p.price}` : 'Launching soon'}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .product { color: var(--text); display: flex; flex-direction: column; gap: 16px; }
+  .product:hover { text-decoration: none; }
+  .product img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); }
+  h2 { font-size: 1.3rem; margin: 0 0 6px; }
+  .price { display: inline-block; margin-top: 10px; font-weight: 600; color: var(--accent); }
+</style>

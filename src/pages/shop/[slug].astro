@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/Base.astro';
+import { products } from '../../data/products.js';
+
+export function getStaticPaths() {
+  return products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
+}
+
+const { product: p } = Astro.props;
+const total = p.contents.reduce((n, [, count]) => n + count, 0);
+const preorder = `mailto:hello@freedomonownterms.com?subject=${encodeURIComponent(`Notify me: ${p.name}`)}`;
+const fill = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\[([^\]]+)\]/g, '<span class="ph">[$1]</span>');
+---
+
+<Base title={`${p.name}: ${p.tagline}`} description={p.description}>
+  <section class="container hero">
+    <img src={p.cover} alt={`${p.name} cover`} width="600" height="849" class="cover" />
+    <div>
+      <a href="/shop/" class="back">← Shop</a>
+      <h1>{p.name}</h1>
+      <p class="tagline">{p.tagline}</p>
+      <p class="muted">{p.description}</p>
+      <div class="buy">
+        {p.buyUrl ? (
+          <>
+            <span class="price">₹{p.price}</span>
+            <a href={p.buyUrl} class="btn primary" rel="noopener">Buy now</a>
+          </>
+        ) : (
+          <>
+            <span class="soon">Launching soon</span>
+            <a href={preorder} class="btn primary">Notify me</a>
+          </>
+        )}
+      </div>
+      <p class="muted small">{p.format}</p>
+    </div>
+  </section>
+
+  <section class="container section two">
+    <div class="card">
+      <h2>What's inside</h2>
+      <ul class="contents">
+        {p.contents.map(([name, count]) => <li><span>{name}</span><span class="muted">{count}</span></li>)}
+        <li class="total"><span>Total prompts</span><span>{total}</span></li>
+      </ul>
+      <ul class="extras">
+        {p.extras.map((e) => <li>{e}</li>)}
+      </ul>
+    </div>
+
+    <div>
+      <h2>Try {p.samples.length} prompts free</h2>
+      <p class="muted">Copy one into ChatGPT, Gemini or Claude, replace the highlighted parts with your details, and send.</p>
+      {p.samples.map(([title, text]) => (
+        <div class="sample">
+          <h3>{title}</h3>
+          <p set:html={fill(text)} />
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: 48px; align-items: center; padding-top: 48px; }
+  .cover { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 30px 80px rgba(34, 211, 238, 0.12); }
+  .back { display: block; margin-bottom: 16px; font-size: 0.9rem; }
+  h1 { margin: 0 0 8px; }
+  .tagline { font-size: 1.25rem; margin: 0 0 16px; }
+  .buy { display: flex; align-items: center; gap: 18px; margin: 28px 0 12px; }
+  .price { font-size: 2rem; font-weight: 700; }
+  .soon { font-weight: 600; color: var(--accent); }
+  .small { font-size: 0.85rem; }
+  .two { display: grid; grid-template-columns: minmax(0, 380px) 1fr; gap: 40px; align-items: start; }
+  h2 { font-size: 1.4rem; margin: 0 0 14px; }
+  .contents, .extras { list-style: none; padding: 0; margin: 0; }
+  .contents li { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .contents .total { font-weight: 600; border-bottom: 0; }
+  .extras { margin-top: 18px; }
+  .extras li { padding: 5px 0 5px 24px; position: relative; color: var(--muted); }
+  .extras li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); }
+  .sample { border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; }
+  .sample h3 { font-size: 1rem; margin: 0 0 6px; }
+  .sample p { margin: 0; color: var(--muted); }
+  .sample :global(.ph) { color: var(--accent); font-weight: 600; }
+  @media (max-width: 800px) {
+    .hero, .two { grid-template-columns: 1fr; }
+    .hero { gap: 28px; }
+    .cover { max-width: 280px; }
+  }
+</style>
