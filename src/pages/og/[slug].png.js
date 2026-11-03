@@ -15,6 +15,10 @@ export function getStaticPaths() {
         footer: 'Search · Fill in · Copy',
       },
     },
+    {
+      params: { slug: 'weather' },
+      props: { title: 'AI Weather Planner: your forecast, plus AI that plans your day around it', kicker: 'Free tool', footer: 'Any city · 7 days' },
+    },
     ...getGuides().map((g) => ({ params: { slug: g.slug }, props: { title: g.title, kicker: g.category, footer: g.readTime } })),
     ...products.map((p) => ({
       params: { slug: p.slug },

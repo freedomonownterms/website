@@ -1,0 +1,398 @@
+---
+// AI Weather Planner: forecast from Open-Meteo (free for non-commercial sites, CC BY 4.0),
+// turned into ready-made AI prompts that open in ChatGPT or Claude with the real forecast included.
+// NOTE: Open-Meteo's free plan does not cover sites that show ads. Before adding AdSense, move to
+// Open-Meteo's paid plan or another provider.
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="AI Weather Planner: Forecast + What to Wear, Plan Your Day"
+  description="Free 7-day weather forecast for any city, plus one-click AI prompts that plan your day, outfit, trip or workout around the real forecast in ChatGPT or Claude."
+  ogImage="/og/weather.png"
+>
+  <section class="container head">
+    <h1>AI Weather <span class="gradient-text">Planner</span></h1>
+    <p class="muted">Get the forecast for any city, then let AI plan your day, outfit or trip around it. Free, no sign-up.</p>
+  </section>
+
+  <section class="container" id="wx">
+    <div class="controls">
+      <div class="city">
+        <input type="search" class="city-input" placeholder="Search a city… e.g. London, Mumbai, New York" aria-label="Search a city" autocomplete="off" />
+        <ul class="suggest" hidden></ul>
+      </div>
+      <button type="button" class="btn-loc">📍 Use my location</button>
+      <div class="units" role="group" aria-label="Units">
+        <button type="button" data-unit="c" class="on">°C</button>
+        <button type="button" data-unit="f">°F</button>
+      </div>
+    </div>
+
+    <p class="status muted">Search for a city or use your location to see the forecast.</p>
+
+    <div class="result" hidden>
+      <div class="now">
+        <div class="now-main">
+          <span class="now-icon" aria-hidden="true"></span>
+          <div>
+            <p class="place"></p>
+            <p class="now-temp"></p>
+            <p class="now-desc"></p>
+          </div>
+        </div>
+        <table class="now-facts">
+          <tbody>
+            <tr><th>Feels like</th><td class="f-feels"></td></tr>
+            <tr><th>Today</th><td class="f-range"></td></tr>
+            <tr><th>Chance of rain</th><td class="f-rain"></td></tr>
+            <tr><th>Wind</th><td class="f-wind"></td></tr>
+            <tr><th>Humidity</th><td class="f-hum"></td></tr>
+            <tr><th>UV index</th><td class="f-uv"></td></tr>
+            <tr><th>Sunrise / sunset</th><td class="f-sun"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Next 24 hours</h2>
+      <div class="hours"></div>
+
+      <h2>7-day forecast</h2>
+      <table class="days">
+        <thead><tr><th>Day</th><th>Weather</th><th>High / low</th><th>Rain</th><th class="hide-sm">Wind</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <h2>Ask AI about this forecast</h2>
+      <p class="muted small">Each prompt already includes the forecast. Click to open it in ChatGPT or Claude, or copy it into Gemini or Copilot.</p>
+      <table class="asks">
+        <tbody></tbody>
+      </table>
+
+      <p class="credit muted small">
+        Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo.com</a> (CC BY 4.0).
+        Forecasts can be wrong; for severe weather, follow your national weather service.
+      </p>
+    </div>
+  </section>
+
+  <section class="container prose about">
+    <h2>How the AI Weather Planner works</h2>
+    <p>
+      Search for any city or share your location, and you'll see current conditions, the next 24 hours and a 7-day
+      forecast. Then pick a question, such as what to wear or the best time for a run, and it opens in ChatGPT or
+      Claude with the real forecast already included, so the AI's advice is based on your actual weather.
+    </p>
+    <p>
+      Your location is used only to fetch the forecast and is not stored by us. Your last city and preferred units are
+      remembered in your own browser. Curious how AI is improving forecasts themselves? Read
+      <a href="/guides/how-ai-is-changing-weather-forecasting/">how AI is changing weather forecasting</a>, or try the
+      <a href="/prompts/">AI Prompt Library</a>.
+    </p>
+  </section>
+</Base>
+
+<script>
+  type Place = { name: string; lat: number; lon: number; cc?: string };
+  type Wx = any;
+
+  const root = document.getElementById('wx')!;
+  const $ = <T extends Element = HTMLElement>(s: string) => root.querySelector<T>(s)!;
+  const input = $<HTMLInputElement>('.city-input');
+  const suggest = $<HTMLUListElement>('.suggest');
+  const status = $('.status');
+  const result = $('.result');
+
+  const load = (k: string) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
+  const store = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+  // Units: the visitor's own choice if they made one, otherwise what the place's country uses.
+  const FAHRENHEIT = ['US', 'PR', 'GU', 'VI', 'AS', 'MP', 'BS', 'BZ', 'KY', 'PW', 'FM', 'MH', 'LR'];
+  let chosenUnit: 'c' | 'f' | null = load('fot-wx-unit');
+  const unitFor = (p: Place): 'c' | 'f' => {
+    const cc = p.cc ?? navigator.language.split('-')[1]?.toUpperCase() ?? '';
+    return chosenUnit ?? (FAHRENHEIT.includes(cc) ? 'f' : 'c');
+  };
+  let place: Place | null = load('fot-wx-place');
+  let unit: 'c' | 'f' = place ? unitFor(place) : chosenUnit ?? 'c';
+  const unitButtons = root.querySelectorAll<HTMLButtonElement>('.units button');
+  const showUnit = () => unitButtons.forEach((b) => b.classList.toggle('on', b.dataset.unit === unit));
+  let wx: Wx = null;
+
+  // WMO weather codes → description and icon
+  const CODES: Record<number, [string, string]> = {
+    0: ['Clear sky', '☀️'], 1: ['Mainly clear', '🌤️'], 2: ['Partly cloudy', '⛅'], 3: ['Overcast', '☁️'],
+    45: ['Fog', '🌫️'], 48: ['Freezing fog', '🌫️'],
+    51: ['Light drizzle', '🌦️'], 53: ['Drizzle', '🌦️'], 55: ['Heavy drizzle', '🌧️'], 56: ['Freezing drizzle', '🌧️'], 57: ['Freezing drizzle', '🌧️'],
+    61: ['Light rain', '🌦️'], 63: ['Rain', '🌧️'], 65: ['Heavy rain', '🌧️'], 66: ['Freezing rain', '🌧️'], 67: ['Freezing rain', '🌧️'],
+    71: ['Light snow', '🌨️'], 73: ['Snow', '🌨️'], 75: ['Heavy snow', '❄️'], 77: ['Snow grains', '🌨️'],
+    80: ['Light showers', '🌦️'], 81: ['Showers', '🌧️'], 82: ['Heavy showers', '⛈️'], 85: ['Snow showers', '🌨️'], 86: ['Heavy snow showers', '❄️'],
+    95: ['Thunderstorm', '⛈️'], 96: ['Thunderstorm with hail', '⛈️'], 99: ['Severe thunderstorm with hail', '⛈️'],
+  };
+  const desc = (c: number) => CODES[c]?.[0] ?? 'Unknown';
+  const icon = (c: number, day = 1) => (!day && c <= 2 ? '🌙' : CODES[c]?.[1] ?? '🌡️');
+
+  const T = () => (unit === 'f' ? '°F' : '°C');
+  const W = () => (unit === 'f' ? 'mph' : 'km/h');
+  const t = (v: number) => `${Math.round(v)}${T()}`;
+  const time = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const hour = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: 'numeric' });
+  const dayName = (iso: string, i: number) => (i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : new Date(`${iso}T12:00`).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }));
+
+  // ---------- data ----------
+  async function fetchWeather(p: Place, keepUnit = false) {
+    if (!keepUnit) { unit = unitFor(p); showUnit(); }
+    status.textContent = `Loading the forecast for ${p.name}…`;
+    status.hidden = false;
+    const params = new URLSearchParams({
+      latitude: String(p.lat), longitude: String(p.lon), timezone: 'auto', forecast_days: '7',
+      current: 'temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day',
+      hourly: 'temperature_2m,precipitation_probability,weather_code,is_day',
+      daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,uv_index_max,sunrise,sunset,wind_speed_10m_max',
+    });
+    if (unit === 'f') { params.set('temperature_unit', 'fahrenheit'); params.set('wind_speed_unit', 'mph'); params.set('precipitation_unit', 'inch'); }
+    try {
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+      if (!r.ok) throw new Error(String(r.status));
+      wx = await r.json();
+      place = p;
+      store('fot-wx-place', p);
+      render();
+    } catch {
+      status.textContent = 'Sorry, the forecast could not be loaded. Please check your connection and try again.';
+    }
+  }
+
+  // ---------- rendering ----------
+  function render() {
+    const c = wx.current, d = wx.daily, h = wx.hourly;
+    status.hidden = true;
+    result.hidden = false;
+    $('.now-icon').textContent = icon(c.weather_code, c.is_day);
+    $('.place').textContent = place!.name;
+    $('.now-temp').textContent = t(c.temperature_2m);
+    $('.now-desc').textContent = desc(c.weather_code);
+    $('.f-feels').textContent = t(c.apparent_temperature);
+    $('.f-range').textContent = `${t(d.temperature_2m_max[0])} / ${t(d.temperature_2m_min[0])}`;
+    $('.f-rain').textContent = `${d.precipitation_probability_max[0] ?? 0}%`;
+    $('.f-wind').textContent = `${Math.round(c.wind_speed_10m)} ${W()}`;
+    $('.f-hum').textContent = `${c.relative_humidity_2m}%`;
+    $('.f-uv').textContent = String(Math.round(d.uv_index_max[0] ?? 0));
+    $('.f-sun').textContent = `${time(d.sunrise[0])} / ${time(d.sunset[0])}`;
+
+    // next 24 hours from the current hour
+    const start = Math.max(0, h.time.findIndex((x: string) => x >= c.time.slice(0, 13)));
+    $('.hours').replaceChildren(
+      ...h.time.slice(start, start + 24).map((x: string, i: number) => {
+        const k = start + i;
+        const el = document.createElement('div');
+        el.className = 'hr';
+        el.innerHTML = `<span class="h-t"></span><span class="h-i"></span><span class="h-v"></span><span class="h-r"></span>`;
+        el.querySelector('.h-t')!.textContent = i === 0 ? 'Now' : hour(x);
+        el.querySelector('.h-i')!.textContent = icon(h.weather_code[k], h.is_day[k]);
+        el.querySelector('.h-v')!.textContent = t(h.temperature_2m[k]);
+        el.querySelector('.h-r')!.textContent = `💧${h.precipitation_probability[k] ?? 0}%`;
+        return el;
+      }),
+    );
+
+    $('.days tbody').replaceChildren(
+      ...d.time.map((x: string, i: number) => {
+        const tr = document.createElement('tr');
+        const cells = [dayName(x, i), `${icon(d.weather_code[i])} ${desc(d.weather_code[i])}`, `${t(d.temperature_2m_max[i])} / ${t(d.temperature_2m_min[i])}`, `${d.precipitation_probability_max[i] ?? 0}%`, `${Math.round(d.wind_speed_10m_max[i])} ${W()}`];
+        cells.forEach((v, j) => { const td = document.createElement('td'); td.textContent = v; if (j === 4) td.className = 'hide-sm'; tr.append(td); });
+        return tr;
+      }),
+    );
+
+    renderAsks(start);
+  }
+
+  // ---------- AI prompts ----------
+  function forecastText(start: number) {
+    const c = wx.current, d = wx.daily, h = wx.hourly;
+    const hours = [0, 3, 6, 9, 12]
+      .map((o) => start + o)
+      .filter((k) => k < h.time.length)
+      .map((k) => `${hour(h.time[k])} ${t(h.temperature_2m[k])} ${desc(h.weather_code[k]).toLowerCase()} (${h.precipitation_probability[k] ?? 0}% rain)`)
+      .join('; ');
+    const today = `Now: ${t(c.temperature_2m)}, feels like ${t(c.apparent_temperature)}, ${desc(c.weather_code).toLowerCase()}, humidity ${c.relative_humidity_2m}%, wind ${Math.round(c.wind_speed_10m)} ${W()}. Today: high ${t(d.temperature_2m_max[0])}, low ${t(d.temperature_2m_min[0])}, ${d.precipitation_probability_max[0] ?? 0}% chance of rain, UV index ${Math.round(d.uv_index_max[0] ?? 0)}, sunrise ${time(d.sunrise[0])}, sunset ${time(d.sunset[0])}. Next hours: ${hours}.`;
+    const week = d.time
+      .map((x: string, i: number) => `${dayName(x, i)}: ${desc(d.weather_code[i]).toLowerCase()}, ${t(d.temperature_2m_max[i])}/${t(d.temperature_2m_min[i])}, ${d.precipitation_probability_max[i] ?? 0}% rain, wind up to ${Math.round(d.wind_speed_10m_max[i])} ${W()}`)
+      .join('; ');
+    return { today, week };
+  }
+
+  function renderAsks(start: number) {
+    const { today, week } = forecastText(start);
+    const where = `Weather in ${place!.name}`;
+    const asks: [string, string][] = [
+      ['👕 What should I wear today?', `${where}. ${today}\n\nWhat should I wear today? Suggest a practical outfit, and tell me if I need an umbrella, jacket, sunscreen or sunglasses. Ask me one quick question about my plans if it would change your advice.`],
+      ['🗓️ Plan my day around the weather', `${where}. ${today}\n\nHelp me plan my day around this weather. Suggest the best times for errands, outdoor time and indoor tasks. Here are my plans: [your plans for today]`],
+      ['🏃 Best time for a run, walk or bike ride', `${where}. ${today}\n\nWhen is the best time today for a [run / walk / bike ride] of about [length]? Consider temperature, rain, wind and daylight, and give me safety tips for these conditions.`],
+      ['✈️ Plan a trip with this forecast', `7-day forecast for ${place!.name}: ${week}.\n\nI'm visiting ${place!.name} for [number] days. Plan a day-by-day itinerary that puts outdoor activities on the best-weather days and indoor ones on the worst, and tell me what to pack.`],
+      ['🎉 Is it a good day for an outdoor event?', `7-day forecast for ${place!.name}: ${week}.\n\nI'm planning an outdoor [event, e.g. picnic / wedding / football match]. Which day and time look best, what are the weather risks, and what backup plan should I have?`],
+      ['🌱 Garden and farm tips this week', `7-day forecast for ${place!.name}: ${week}.\n\nGive me practical gardening and farming advice for this week's weather: watering, planting, harvesting, protecting plants and anything to avoid. I grow: [what you grow]`],
+      ['🧺 Best day to dry laundry outside', `7-day forecast for ${place!.name}: ${week}.\n\nWhich day and time this week is best for drying laundry outside, and which days should I avoid?`],
+      ['🧒 Explain today\'s weather simply', `${where}. ${today}\n\nExplain today's weather to a 10-year-old in a fun, simple way, and add one interesting science fact about this kind of weather.`],
+    ];
+    $('.asks tbody').replaceChildren(
+      ...asks.map(([label, prompt]) => {
+        const tr = document.createElement('tr');
+        const name = document.createElement('td');
+        name.className = 'a-name';
+        name.textContent = label;
+        const act = document.createElement('td');
+        act.className = 'a-act';
+        const q = encodeURIComponent(prompt);
+        const mk = (text: string, href?: string) => {
+          const el = document.createElement(href ? 'a' : 'button') as HTMLAnchorElement | HTMLButtonElement;
+          el.textContent = text;
+          if (href) Object.assign(el, { href, target: '_blank', rel: 'noopener noreferrer' });
+          else (el as HTMLButtonElement).type = 'button';
+          return el;
+        };
+        const copy = mk('Copy') as HTMLButtonElement;
+        copy.addEventListener('click', async () => {
+          try { await navigator.clipboard.writeText(prompt); copy.textContent = 'Copied ✓'; } catch { copy.textContent = 'Copy failed'; }
+          setTimeout(() => (copy.textContent = 'Copy'), 1800);
+        });
+        act.append(mk('ChatGPT ↗', `https://chatgpt.com/?q=${q}`), mk('Claude ↗', `https://claude.ai/new?q=${q}`), copy);
+        tr.append(name, act);
+        return tr;
+      }),
+    );
+  }
+
+  // ---------- city search ----------
+  let timer = 0;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim();
+    if (q.length < 2) { suggest.hidden = true; return; }
+    timer = window.setTimeout(async () => {
+      try {
+        const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${new URLSearchParams({ name: q, count: '6', language: 'en', format: 'json' })}`);
+        const data = await r.json();
+        const seen = new Set<string>();
+        const list: any[] = (data.results || []).filter((x: any) => {
+          const label = [x.name, x.admin1, x.country].filter(Boolean).join(', ');
+          return seen.has(label) ? false : (seen.add(label), true);
+        });
+        suggest.replaceChildren(
+          ...(list.length
+            ? list.map((x) => {
+                const li = document.createElement('li');
+                const b = document.createElement('button');
+                b.type = 'button';
+                const label = [x.name, x.admin1, x.country].filter(Boolean).join(', ');
+                b.textContent = label;
+                b.addEventListener('click', () => {
+                  suggest.hidden = true;
+                  input.value = '';
+                  fetchWeather({ name: label, lat: x.latitude, lon: x.longitude, cc: x.country_code });
+                });
+                li.append(b);
+                return li;
+              })
+            : [Object.assign(document.createElement('li'), { className: 'none', textContent: 'No places found' })]),
+        );
+        suggest.hidden = false;
+      } catch { suggest.hidden = true; }
+    }, 300);
+  });
+  document.addEventListener('click', (e) => { if (!root.querySelector('.city')!.contains(e.target as Node)) suggest.hidden = true; });
+
+  // ---------- my location ----------
+  $('.btn-loc').addEventListener('click', () => {
+    if (!navigator.geolocation) { status.textContent = 'Your browser cannot share location. Please search for a city instead.'; return; }
+    status.hidden = false;
+    status.textContent = 'Finding your location…';
+    navigator.geolocation.getCurrentPosition(
+      (pos) => fetchWeather({ name: 'Your location', lat: +pos.coords.latitude.toFixed(3), lon: +pos.coords.longitude.toFixed(3) }),
+      () => { status.textContent = 'Location was not shared. Please search for a city instead.'; },
+      { timeout: 10000, maximumAge: 600000 },
+    );
+  });
+
+  // ---------- units ----------
+  unitButtons.forEach((b) =>
+    b.addEventListener('click', () => {
+      unit = chosenUnit = b.dataset.unit as 'c' | 'f';
+      store('fot-wx-unit', unit);
+      showUnit();
+      if (place) fetchWeather(place, true);
+    }),
+  );
+  showUnit();
+
+  if (place) fetchWeather(place);
+</script>
+
+<style>
+  .head { padding-top: 32px; padding-bottom: 20px; }
+  .head h1 { font-size: clamp(1.8rem, 3.2vw, 2.5rem); margin: 0 0 8px; }
+  .head p { margin: 0; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+  .city { position: relative; flex: 1 1 320px; max-width: 520px; }
+  .city-input, .btn-loc, .units button {
+    font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  }
+  .city-input { width: 100%; font-size: 1rem; padding: 12px 14px; }
+  .city-input:focus { outline: none; border-color: var(--accent); }
+  .btn-loc { padding: 11px 16px; cursor: pointer; }
+  .btn-loc:hover { border-color: var(--accent); }
+  .units { display: flex; }
+  .units button { padding: 11px 14px; cursor: pointer; }
+  .units button:first-child { border-radius: 12px 0 0 12px; }
+  .units button:last-child { border-radius: 0 12px 12px 0; border-left: 0; }
+  .units button.on { background: var(--accent); color: #0a0b10; border-color: var(--accent); font-weight: 600; }
+  .suggest { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20; list-style: none; margin: 0; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; }
+  .suggest :global(button) { width: 100%; text-align: left; font: inherit; color: var(--text); background: none; border: 0; border-radius: 8px; padding: 9px 10px; cursor: pointer; }
+  .suggest :global(button:hover) { background: var(--surface); color: var(--accent); }
+  .suggest :global(.none) { padding: 9px 10px; color: var(--muted); }
+
+  .status { margin: 24px 0; }
+  h2 { font-size: 1.15rem; margin: 32px 0 12px; }
+  .small { font-size: 0.85rem; }
+
+  .now { display: grid; grid-template-columns: 1fr minmax(260px, 380px); gap: 24px; align-items: center; padding: 22px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .now-main { display: flex; align-items: center; gap: 18px; }
+  .now-icon { font-size: 4rem; line-height: 1; }
+  .place { margin: 0; color: var(--muted); }
+  .now-temp { margin: 0; font-family: var(--font-head); font-size: 3.2rem; font-weight: 700; line-height: 1.1; }
+  .now-desc { margin: 0; font-size: 1.1rem; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+  thead th { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .now-facts th { color: var(--muted); font-weight: 400; width: 50%; }
+  .now-facts td { font-weight: 600; }
+
+  .hours { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .hours :global(.hr) { flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 64px; padding: 10px 6px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.85rem; }
+  .hours :global(.h-t) { color: var(--muted); }
+  .hours :global(.h-i) { font-size: 1.3rem; }
+  .hours :global(.h-v) { font-weight: 600; }
+  .hours :global(.h-r) { color: var(--muted); font-size: 0.75rem; }
+
+  .asks :global(.a-name) { font-weight: 600; }
+  .asks :global(.a-act) { text-align: right; white-space: nowrap; }
+  .asks :global(.a-act a), .asks :global(.a-act button) {
+    font: inherit; font-size: 0.85rem; color: var(--text); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 5px 12px; margin-left: 6px; cursor: pointer; text-decoration: none;
+  }
+  .asks :global(.a-act a:hover), .asks :global(.a-act button:hover) { border-color: var(--accent); color: var(--accent); }
+  .credit { margin-top: 20px; }
+  .about { margin-top: 56px; }
+
+  @media (max-width: 760px) {
+    .now { grid-template-columns: 1fr; }
+    .hide-sm, :global(td.hide-sm) { display: none; }
+    .asks :global(tr) { display: flex; flex-direction: column; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .asks :global(td) { border: 0; padding: 0 4px; }
+    .asks :global(.a-act) { text-align: left; }
+    .asks :global(.a-act a:first-child) { margin-left: 0; }
+  }
+</style>
