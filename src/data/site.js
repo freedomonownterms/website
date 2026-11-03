@@ -15,5 +15,6 @@ export const site = {
   cloudflareAnalyticsToken: '03f167293e764f00b3d4d4ef72b10e28',
 
   // Official social profiles. Shown in the footer and told to search engines.
-  socials: [{ name: 'YouTube', url: 'https://www.youtube.com/@Freedomonownterms' }],
+  // Example: { name: 'YouTube', url: 'https://www.youtube.com/@freedomonownterms' }
+  socials: [],
 };
