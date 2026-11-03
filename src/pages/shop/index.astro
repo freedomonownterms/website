@@ -6,7 +6,7 @@ import { products } from '../../data/products.js';
 <Base title="Shop" description="Practical AI prompt kits and guides from Freedom On Own Terms, made for students, job seekers and everyday people in India.">
   <section class="container page-head">
     <h1>AI kits that <span class="gradient-text">save you hours</span></h1>
-    <p>Ready-to-use prompt packs and guides. Pay once, download instantly, use them forever.</p>
+    <p>Ready-to-use prompt packs and guides. Download instantly and use them forever.</p>
   </section>
 
   <section class="container">
@@ -17,7 +17,7 @@ import { products } from '../../data/products.js';
           <div>
             <h2>{p.name}</h2>
             <p class="muted">{p.tagline}</p>
-            <span class="price">{p.buyUrl ? `₹${p.price}` : 'Launching soon'}</span>
+            <span class="price">{p.downloadUrl ? 'Free download' : p.buyUrl ? `₹${p.price}` : 'Launching soon'}</span>
           </div>
         </a>
       ))}

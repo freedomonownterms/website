@@ -1,7 +1,8 @@
-// Digital products sold on the site.
-// To start selling, paste the payment link (Razorpay Payment Page, Gumroad, etc.) into `buyUrl`.
-// While `buyUrl` is empty, the page shows "Launching soon" with an email pre-order button.
-// Only free sample prompts go here: this repository is public, so the full kit stays in /private.
+// Digital products on the site.
+// Free product: set `downloadUrl` to a file in public/downloads/.
+// Paid product: leave `downloadUrl` empty and paste the payment link (Razorpay Payment Page, Gumroad, etc.) into `buyUrl`.
+// With neither set, the page shows "Launching soon" with an email "Notify me" button.
+// This repository is public: never put a paid product's file in public/. Sources live in the git-ignored /private.
 export const products = [
   {
     slug: 'ai-career-kit',
@@ -9,7 +10,8 @@ export const products = [
     tagline: '75 ChatGPT prompts for students & job seekers',
     description:
       'Copy-and-paste AI prompts for resumes, cover letters, LinkedIn, interviews, salary talks and exam prep. Written for students and job seekers in India.',
-    price: 149,
+    price: 0,
+    downloadUrl: '/downloads/AI-Career-Kit.pdf',
     buyUrl: '',
     cover: '/shop/ai-career-kit-cover.webp',
     format: 'PDF · 20 pages · instant download',

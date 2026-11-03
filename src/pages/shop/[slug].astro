@@ -21,7 +21,12 @@ const fill = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\[([
       <p class="tagline">{p.tagline}</p>
       <p class="muted">{p.description}</p>
       <div class="buy">
-        {p.buyUrl ? (
+        {p.downloadUrl ? (
+          <>
+            <span class="price">Free</span>
+            <a href={p.downloadUrl} class="btn primary" download>Download the PDF</a>
+          </>
+        ) : p.buyUrl ? (
           <>
             <span class="price">₹{p.price}</span>
             <a href={p.buyUrl} class="btn primary" rel="noopener">Buy now</a>
