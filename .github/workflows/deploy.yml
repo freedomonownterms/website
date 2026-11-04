@@ -43,3 +43,17 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tell Bing and other IndexNow search engines about the pages. Only when content was pushed,
+  # not on the daily news rebuild. A failure here doesn't affect the live site.
+  indexnow:
+    needs: deploy
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - run: node scripts/indexnow.mjs
