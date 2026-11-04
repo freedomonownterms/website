@@ -2,7 +2,7 @@
 title: "How to Spot AI Scams, Fake Voices and Deepfakes"
 description: Scammers now use AI to clone voices, fake videos and write convincing messages. Learn the warning signs, the simple habits that protect you and your family, and what to do if you're targeted.
 date: 2026-11-03
-category: Safety
+category: Basics
 readTime: 6 min read
 ---
 

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getGuides, formatDate } from '../../lib/guides.js';
 
 const guides = getGuides();
+const topics = [...new Set(guides.map((g) => g.category))].sort();
 ---
 
 <Base title="Guides" description="Practical, plain-English guides to using AI tools at work and in everyday life.">
@@ -12,9 +13,13 @@ const guides = getGuides();
   </section>
 
   <section class="container">
+    <div class="filters" role="group" aria-label="Filter by topic">
+      <button class="filter-btn active" data-filter="all">All</button>
+      {topics.map((t) => <button class="filter-btn" data-filter={t}>{t}</button>)}
+    </div>
     <div class="list">
       {guides.map((g) => (
-        <a href={`/guides/${g.slug}/`} class="card row">
+        <a href={`/guides/${g.slug}/`} class="card row" data-topic={g.category}>
           <div>
             <span class="chip violet">{g.category}</span>
             <h2>{g.title}</h2>
@@ -27,10 +32,22 @@ const guides = getGuides();
   </section>
 </Base>
 
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const rows = document.querySelectorAll<HTMLElement>('.row');
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.classList.toggle('active', b === btn));
+      rows.forEach((r) => (r.hidden = btn.dataset.filter !== 'all' && r.dataset.topic !== btn.dataset.filter));
+    }),
+  );
+</script>
+
 <style>
   .list { display: flex; flex-direction: column; gap: 16px; }
   .row { color: var(--text); display: block; }
   .row:hover { text-decoration: none; }
+  .row[hidden] { display: none; }
   h2 { font-size: 1.4rem; margin: 12px 0 8px; }
   .small { font-size: 0.85rem; }
 </style>

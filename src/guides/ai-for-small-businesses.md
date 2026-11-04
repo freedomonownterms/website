@@ -2,7 +2,7 @@
 title: "AI for Small Businesses: 10 Tasks You Can Hand Off Today"
 description: Practical ways small business owners can use free AI tools like ChatGPT, Gemini, Claude and Copilot to save hours every week on marketing, customer service, admin and planning, with ready-to-use prompts.
 date: 2026-11-03
-category: Business
+category: Productivity
 readTime: 6 min read
 ---
 

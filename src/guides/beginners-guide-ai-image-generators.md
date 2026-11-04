@@ -2,7 +2,7 @@
 title: A Beginner's Guide to AI Image Generators
 description: What AI image generators can do, which one to choose, and how to write prompts that get great results.
 date: 2026-10-24
-category: Image
+category: Basics
 readTime: 7 min read
 ---
 

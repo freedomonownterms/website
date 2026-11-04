@@ -6,10 +6,17 @@ import Newsletter from '../components/Newsletter.astro';
 import { getNews } from '../lib/news.js';
 import { getGuides, formatDate } from '../lib/guides.js';
 import { tools } from '../data/tools.js';
+import { library } from '../data/prompts.js';
 
 const news = (await getNews()).slice(0, 6);
 const featured = tools.filter((t) => t.featured).slice(0, 6);
 const guides = getGuides().slice(0, 3);
+const promptCount = library.reduce((n, s) => n + s.prompts.length, 0);
+const freeTools = [
+  { name: 'AI Prompt Library', href: '/prompts/', text: `${promptCount} ready-to-use prompts. Pick one, add your details, and copy it into any AI assistant.` },
+  { name: 'AI Weather Planner', href: '/weather/', text: 'Your 7-day forecast, plus AI prompts that plan your day, outfit or trip around it.' },
+  { name: 'AI Career Kit', href: '/shop/ai-career-kit/', text: 'A free 20-page PDF with 75 prompts for resumes, interviews and exams.' },
+];
 ---
 
 <Base>
@@ -24,6 +31,22 @@ const guides = getGuides().slice(0, 3);
       <a href="/news/" class="btn primary">Read the latest news</a>
       <a href="/tools/" class="btn">Explore AI tools</a>
     </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head">
+      <h2>Free tools</h2>
+    </div>
+    <table class="free-tools">
+      <tbody>
+        {freeTools.map((t) => (
+          <tr>
+            <td><a href={t.href}>{t.name}</a></td>
+            <td class="muted">{t.text}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </section>
 
   <section class="container section">
@@ -75,5 +98,20 @@ const guides = getGuides().slice(0, 3);
   .guide-card:hover { text-decoration: none; }
   .guide-card h3, .guide-card p { margin: 0; }
   .small { font-size: 0.85rem; }
-  @media (max-width: 600px) { .hero { padding-top: 56px; } }
+  .free-tools { width: 100%; border-collapse: collapse; }
+  .free-tools tr { position: relative; }
+  .free-tools tr:hover { background: var(--surface); }
+  .free-tools td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .free-tools td:first-child { white-space: nowrap; }
+  .free-tools tr:first-child td { border-top: 1px solid var(--border); }
+  .free-tools a { color: var(--text); font-weight: 600; text-decoration: none; }
+  .free-tools a::after { content: ''; position: absolute; inset: 0; }
+  .free-tools tr:hover a { color: var(--accent); }
+  @media (max-width: 600px) {
+    .hero { padding-top: 56px; }
+    .free-tools td { display: block; padding: 0 10px; border: 0; white-space: normal; }
+    .free-tools tr { display: block; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .free-tools tr:first-child td { border-top: 0; }
+    .free-tools tr:first-child { border-top: 1px solid var(--border); }
+  }
 </style>

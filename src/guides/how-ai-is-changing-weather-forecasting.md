@@ -2,7 +2,7 @@
 title: "How AI Is Changing Weather Forecasting (and What It Means for You)"
 description: AI weather models from Google DeepMind, Microsoft, Huawei and Europe's ECMWF now rival traditional forecasts and run in minutes. Here's how they work, where they still fall short, and how to use AI with your own forecast.
 date: 2026-11-03
-category: Explainers
+category: Basics
 readTime: 5 min read
 ---
 
