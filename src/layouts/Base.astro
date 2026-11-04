@@ -85,12 +85,29 @@ const jsonLd =
       rel="stylesheet"
     />
     {site.cloudflareAnalyticsToken && (
-      <script
-        is:inline
-        defer
-        src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={JSON.stringify({ token: site.cloudflareAnalyticsToken })}
-      ></script>
+      /* Visitor stats. Opening any page with ?notrack stops counting this browser; ?track turns counting back on. */
+      <script is:inline define:vars={{ token: site.cloudflareAnalyticsToken }}>
+        (() => {
+          const KEY = 'fot-no-analytics';
+          const params = new URLSearchParams(location.search);
+          try {
+            if (params.has('notrack')) {
+              localStorage.setItem(KEY, '1');
+              alert('Done. This browser will no longer be counted in the visitor stats.');
+            }
+            if (params.has('track')) {
+              localStorage.removeItem(KEY);
+              alert('Done. This browser will be counted in the visitor stats again.');
+            }
+            if (localStorage.getItem(KEY)) return;
+          } catch {}
+          const s = document.createElement('script');
+          s.defer = true;
+          s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+          s.dataset.cfBeacon = JSON.stringify({ token });
+          document.head.append(s);
+        })();
+      </script>
     )}
   </head>
   <body>
