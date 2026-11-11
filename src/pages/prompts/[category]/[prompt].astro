@@ -1,0 +1,88 @@
+---
+// One page per prompt (/prompts/<category>/<slug>/), so each prompt can be found in search on its own.
+import Base from '../../../layouts/Base.astro';
+import PromptWorkspace from '../../../components/PromptWorkspace.astro';
+import ShareButtons from '../../../components/ShareButtons.astro';
+import { library } from '../../../data/prompts.js';
+import { highlight } from '../../../lib/prompt-html.js';
+
+// The kind of prompt each category holds, used in page titles ("Free Resume Prompt").
+const kinds = {
+  resumes: 'Resume',
+  applications: 'Cover Letter',
+  profiles: 'LinkedIn Profile',
+  'job-search': 'Job Search',
+  interviews: 'Interview',
+  offers: 'Salary & Job Offer',
+  studying: 'Study',
+  'career-planning': 'Career Planning',
+  writing: 'Writing & Email',
+  productivity: 'Productivity',
+  business: 'Small Business',
+  images: 'AI Image',
+  safety: 'AI Safety',
+  'follow-ups': 'Follow-Up',
+};
+
+export function getStaticPaths() {
+  return library.flatMap((section) =>
+    section.prompts.map((prompt) => ({ params: { category: section.id, prompt: prompt.slug }, props: { section, prompt } })),
+  );
+}
+
+const { section, prompt } = Astro.props;
+const kind = kinds[section.id] ?? 'AI';
+const others = section.prompts.filter((p) => p !== prompt);
+const plain = prompt.text.replace(/\s+/g, ' ');
+const description = `${plain.length > 120 ? plain.slice(0, 117).replace(/\s+\S*$/, '') + '…' : plain} Free to copy into ChatGPT, Gemini, Claude or Copilot.`;
+---
+
+<Base title={`${prompt.title}: Free ${kind} Prompt for ChatGPT`} description={description} ogImage="/og/prompts.png">
+  <section class="container head">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/prompts/">Prompt Library</a> › <a href={`/prompts/${section.id}/`}>{section.title}</a>
+    </nav>
+    <h1>{prompt.title}</h1>
+    <p class="muted">A free {kind.toLowerCase()} prompt for ChatGPT, Gemini, Claude or Copilot. Fill in your details, then copy it or open it straight in an AI assistant.</p>
+  </section>
+
+  <section class="container">
+    <h2>The prompt</h2>
+    <p class="prompt" set:html={highlight(prompt.text)} />
+    <p class="muted small">The parts in [square brackets] are yours to fill in.</p>
+
+    <h2>Fill it in and use it</h2>
+    <PromptWorkspace section={{ ...section, prompts: [prompt] }} single />
+
+    <div class="after">
+      <ShareButtons title={prompt.title} label="Share this prompt" />
+      <h2>More {section.title.toLowerCase()} prompts</h2>
+      <ul class="others">
+        {others.map((p) => <li><a href={p.url}>{p.title}</a></li>)}
+      </ul>
+      <p class="muted small">
+        <a href={`/prompts/${section.id}/`}>Open all {section.title.toLowerCase()} prompts in one workspace</a> ·
+        <a href="/prompts/">Browse every category</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .head { padding-top: 24px; padding-bottom: 8px; }
+  .head h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 0 0 6px; }
+  .head p { margin: 0; max-width: 720px; }
+  .crumbs { margin-bottom: 10px; font-size: 0.92rem; color: var(--muted); }
+  h2 { font-size: 1.2rem; margin: 28px 0 12px; }
+  .prompt {
+    max-width: 820px; margin: 0; padding: 16px 18px; line-height: 1.65;
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px;
+  }
+  .prompt :global(.ph) { color: #fbbf24; font-weight: 600; }
+  .small { font-size: 0.85rem; margin-top: 8px; }
+  .after { max-width: 720px; margin-top: 32px; }
+  .others { list-style: none; margin: 0; padding: 0; }
+  .others li { padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .others a { color: var(--text); font-weight: 600; }
+  .others a:hover { color: var(--accent); }
+</style>

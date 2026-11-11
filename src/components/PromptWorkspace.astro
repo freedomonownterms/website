@@ -2,15 +2,16 @@
 // One category of the Prompt Library: prompt list on the left, workspace on the right.
 // The workspace auto-fills details the visitor has typed before (saved in their browser only).
 // Every prompt is real HTML in the list, so search engines can read it; the script adds the tool behaviour.
-const { section } = Astro.props;
+// With single, it shows just one prompt's workspace (used on each prompt's own page).
+const { section, single = false } = Astro.props;
 ---
 
-<div class="tool">
+<div class={single ? 'tool single' : 'tool'}>
   <div class="panes">
     <div class="list">
       <p class="list-head muted">{section.prompts.length} prompts · pick one</p>
       {section.prompts.map((p) => (
-        <button type="button" class="item" data-id={p.id} data-title={p.title} data-text={p.text}>
+        <button type="button" class="item" data-id={p.id} data-url={p.url} data-title={p.title} data-text={p.text}>
           <span class="it-title">{p.title}</span>
           <span class="it-text">{p.text}</span>
         </button>
@@ -22,6 +23,7 @@ const { section } = Astro.props;
       <div class="work-head">
         <span class="w-cat">{section.icon} {section.title}</span>
         <h2 class="w-title"></h2>
+        {!single && <a class="w-page" href={section.prompts[0].url}>Open this prompt on its own page →</a>}
       </div>
 
       <div class="step">
@@ -118,6 +120,7 @@ const { section } = Astro.props;
     current = it;
     items.forEach((i) => i.classList.toggle('selected', i === it));
     $('.w-title').textContent = it.dataset.title!;
+    tool.querySelector<HTMLAnchorElement>('.w-page')?.setAttribute('href', it.dataset.url!);
 
     const fields = fieldsOf(it.dataset.text!);
     const auto = fields.filter((f) => values[f.key]?.trim()).length;
@@ -207,6 +210,11 @@ const { section } = Astro.props;
   .back { display: none; }
   .w-cat { color: var(--accent); font-size: 0.8rem; font-weight: 600; }
   .w-title { font-size: 1.45rem; margin: 4px 0 0; }
+  .w-page { display: inline-block; margin-top: 6px; font-size: 0.85rem; }
+
+  /* Single prompt: no list, no fixed height, and the workspace shows inline on phones too. */
+  .tool.single .panes { display: block; height: auto; }
+  .tool.single .list, .tool.single .back, .tool.single .work-head { display: none !important; }
 
   .step-label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; font-weight: 600; font-size: 0.95rem; }
   .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gradient); color: #0a0b10; font-size: 0.75rem; }
@@ -244,5 +252,6 @@ const { section } = Astro.props;
     .tool.working .work { display: flex; position: fixed; inset: 0; z-index: 100; background: var(--bg); padding: 16px 18px 28px; overflow-y: auto; }
     .back { display: block; align-self: flex-start; font: inherit; color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer; }
     .w-actions .primary { flex: 1 1 100%; padding: 14px; font-size: 1rem; }
+    .tool.single .work { display: flex; position: static; padding: 18px 16px 22px; }
   }
 </style>

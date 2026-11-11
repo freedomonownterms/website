@@ -1,9 +1,9 @@
 ---
 // Prompt Library home: search box + category tiles. Search results come from a small JSON index
-// and link straight to the prompt on its category page.
+// and link to each prompt's own page.
 import { library } from '../data/prompts.js';
 
-const index = library.flatMap((s) => s.prompts.map((p) => ({ id: p.id, cat: s.id, catTitle: s.title, icon: s.icon, title: p.title, text: p.text })));
+const index = library.flatMap((s) => s.prompts.map((p) => ({ id: p.id, url: p.url, cat: s.id, catTitle: s.title, icon: s.icon, title: p.title, text: p.text })));
 ---
 
 <div class="cats-home">
@@ -35,7 +35,7 @@ const index = library.flatMap((s) => s.prompts.map((p) => ({ id: p.id, cat: s.id
 <script type="application/json" id="prompt-index" set:html={JSON.stringify(index)} />
 
 <script>
-  type Entry = { id: string; cat: string; catTitle: string; icon: string; title: string; text: string };
+  type Entry = { id: string; url: string; cat: string; catTitle: string; icon: string; title: string; text: string };
   const index: Entry[] = JSON.parse(document.getElementById('prompt-index')!.textContent!);
   const root = document.querySelector<HTMLElement>('.cats-home')!;
   const input = root.querySelector<HTMLInputElement>('.psearch')!;
@@ -54,7 +54,7 @@ const index = library.flatMap((s) => s.prompts.map((p) => ({ id: p.id, cat: s.id
       ...hits.map((e) => {
         const a = document.createElement('a');
         a.className = 'r-item';
-        a.href = `/prompts/${e.cat}/?p=${e.id}`;
+        a.href = e.url;
         const cat = document.createElement('span');
         cat.className = 'r-cat';
         cat.textContent = `${e.icon} ${e.catTitle}`;

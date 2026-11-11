@@ -238,5 +238,9 @@ export const library = [
 ].map((section) => ({
   ...section,
   icon: icons[section.id] ?? '•',
-  prompts: section.prompts.map(([title, text], i) => ({ id: `${section.id}-${i + 1}`, title, text })),
+  prompts: section.prompts.map(([title, text], i) => {
+    // Each prompt has its own page at /prompts/<category>/<slug>/. Renaming a prompt changes its address.
+    const slug = title.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return { id: `${section.id}-${i + 1}`, slug, url: `/prompts/${section.id}/${slug}/`, title, text };
+  }),
 }));
