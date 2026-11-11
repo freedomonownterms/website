@@ -16,5 +16,5 @@ export const site = {
 
   // Official social profiles. Shown in the footer and told to search engines.
   // Example: { name: 'YouTube', url: 'https://www.youtube.com/@freedomonownterms' }
-  socials: [],
+  socials: [{ name: 'YouTube', url: 'https://www.youtube.com/@freedomonownterms.official' }],
 };
