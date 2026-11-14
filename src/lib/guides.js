@@ -38,6 +38,9 @@ const toolLinks = {
   'how-to-spot-ai-scams-and-deepfakes': ['/prompts/safety/', 'Use the free scam-checking prompts'],
   'how-ai-is-changing-weather-forecasting': ['/weather/', 'Try the free AI Weather Planner'],
   'chatgpt-vs-gemini-vs-claude': ['/tools/', 'Browse the AI tools directory'],
+  'resume-with-no-experience-using-ai': ['/prompts/resumes/no-experience-yet/', 'Use the free “No experience yet” resume prompt'],
+  'explain-career-gap-on-resume-with-ai': ['/prompts/resumes/explain-a-career-gap/', 'Use the free career gap prompt'],
+  'not-getting-interview-calls-fixes': ['/prompts/job-search/why-am-i-not-getting-calls/', 'Use the free “Why am I not getting calls?” prompt'],
 };
 
 export function getToolLink(guide) {
