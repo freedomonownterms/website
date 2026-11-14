@@ -3,6 +3,7 @@ const links = [
   { href: '/news/', label: 'News' },
   { href: '/tools/', label: 'Tools' },
   { href: '/guides/', label: 'Guides' },
+  { href: '/explained/', label: 'Explained' },
   { href: '/prompts/', label: 'Prompts' },
   { href: '/weather/', label: 'Weather' },
   { href: '/shop/', label: 'Shop' },
@@ -102,7 +103,7 @@ const path = Astro.url.pathname;
     background: var(--text);
     border-radius: 2px;
   }
-  @media (max-width: 760px) {
+  @media (max-width: 1100px) {
     .menu-btn { display: flex; }
     nav {
       display: none;

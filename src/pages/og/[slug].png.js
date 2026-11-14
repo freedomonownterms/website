@@ -3,6 +3,7 @@ import { getGuides } from '../../lib/guides.js';
 import { products } from '../../data/products.js';
 import { library } from '../../data/prompts.js';
 import { renderOg } from '../../lib/og.js';
+import { explainers } from '../../data/explainers.js';
 
 export function getStaticPaths() {
   return [
@@ -19,6 +20,8 @@ export function getStaticPaths() {
       params: { slug: 'weather' },
       props: { title: 'AI Weather Planner: your forecast, plus AI that plans your day around it', kicker: 'Free tool', footer: 'Any city · 7 days' },
     },
+    { params: { slug: 'explained' }, props: { title: 'Explained: tech, science and AI, explained simply', kicker: 'Videos + articles', footer: 'Watch or read' } },
+    ...explainers.map((e) => ({ params: { slug: `explained-${e.slug}` }, props: { title: e.title, kicker: `Explained · ${e.topic}`, footer: `${Math.round(e.seconds / 60)} min video` } })),
     ...getGuides().map((g) => ({ params: { slug: g.slug }, props: { title: g.title, kicker: g.category, footer: g.readTime } })),
     ...products.map((p) => ({
       params: { slug: p.slug },

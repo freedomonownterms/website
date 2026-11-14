@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import { explainers } from '../../data/explainers.js';
+
+const minutes = (s) => `${Math.max(1, Math.round(s / 60))} min video`;
+---
+
+<Base title="Explained" description="Tech, science and AI explained simply: watch the video or read it step by step, with pictures." ogImage="/og/explained.png">
+  <section class="container page-head">
+    <h1><span class="gradient-text">Explained</span></h1>
+    <p>Tech, science and AI, explained simply. Watch the video, or read it step by step with pictures.</p>
+  </section>
+
+  <section class="container">
+    <table class="list">
+      <tbody>
+        {explainers.map((e) => (
+          <tr>
+            <td>
+              <span class="topic">{e.topic}</span>
+              <a href={`/explained/${e.slug}/`} class="title">{e.title}</a>
+              <p class="muted">{e.description}</p>
+            </td>
+            <td class="len muted">{minutes(e.seconds)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</Base>
+
+<style>
+  .list { width: 100%; border-collapse: collapse; }
+  .list td { padding: 22px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .topic { display: block; color: var(--accent); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .title { color: var(--text); font-family: var(--font-head); font-size: 1.35rem; font-weight: 700; }
+  .title:hover { color: var(--accent); text-decoration: none; }
+  .list p { margin: 8px 0 0; max-width: 760px; }
+  .len { white-space: nowrap; text-align: right; padding-left: 20px; font-size: 0.9rem; }
+  @media (max-width: 600px) { .len { display: none; } }
+</style>

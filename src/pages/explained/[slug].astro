@@ -1,0 +1,127 @@
+---
+// One "Explained" page: the YouTube video, then the same story as a written article with its pictures.
+import Base from '../../layouts/Base.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
+import { explainers } from '../../data/explainers.js';
+
+export function getStaticPaths() {
+  return explainers.map((e) => ({ params: { slug: e.slug }, props: { e } }));
+}
+
+const { e } = Astro.props;
+const others = explainers.filter((x) => x !== e);
+const seconds = (t) => t.split(':').reduce((a, b) => a * 60 + Number(b), 0);
+const watch = `https://www.youtube.com/watch?v=${e.youtubeId}`;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+// Tells search engines this page has a video (can show in Google's video results).
+const videoLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: e.title,
+  description: e.description,
+  thumbnailUrl: [`https://i.ytimg.com/vi/${e.youtubeId}/hqdefault.jpg`],
+  uploadDate: e.uploaded,
+  duration: `PT${Math.floor(e.seconds / 60)}M${e.seconds % 60}S`,
+  embedUrl: `https://www.youtube-nocookie.com/embed/${e.youtubeId}`,
+  contentUrl: watch,
+  url: pageUrl,
+};
+---
+
+<Base title={e.title} description={e.description} type="article" published={e.uploaded} ogImage={`/og/explained-${e.slug}.png`}>
+  <article class="container">
+    <header class="page-head">
+      <a href="/explained/" class="back">← All explainers</a>
+      <span class="chip violet">{e.topic}</span>
+      <h1>{e.title}</h1>
+      <p>{e.description}</p>
+    </header>
+
+    <div class="video">
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${e.youtubeId}?rel=0`}
+        title={e.title}
+        loading="lazy"
+        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <p class="muted small watch">Prefer to read? The whole video is written out below, with its pictures. <a href={watch} target="_blank" rel="noopener">Watch on YouTube ↗</a></p>
+    {e.note && <p class="note">{e.note}</p>}
+
+    <div class="story">
+      {e.sections.map((s) => (
+        <section class="part">
+          {s.label && <span class="label">{s.label}</span>}
+          <h2>{s.heading}</h2>
+          {s.image && (
+            <figure>
+              <img src={s.image} alt={s.caption ?? s.heading} loading="lazy" width="1200" />
+              {s.caption && <figcaption>{s.caption}</figcaption>}
+            </figure>
+          )}
+          <p>{s.text}</p>
+        </section>
+      ))}
+    </div>
+
+    <div class="after">
+      <p class="tool"><a href={e.relatedHref}>{e.relatedLabel} →</a></p>
+      <ShareButtons title={e.title} label="Found this useful? Share it" />
+
+      <h2>Chapters</h2>
+      <ul class="chapters">
+        {e.chapters.map(([t, name]) => (
+          <li><a href={`${watch}&t=${seconds(t)}s`} target="_blank" rel="noopener"><span class="time">{t}</span> {name}</a></li>
+        ))}
+      </ul>
+
+      {e.sources.length > 0 && (
+        <>
+          <h2>Sources</h2>
+          <ul class="sources">
+            {e.sources.map(([name, href]) => <li><a href={href} target="_blank" rel="noopener noreferrer">{name}</a></li>)}
+          </ul>
+          <p class="muted small">Pictures are simplified illustrations, not to scale.</p>
+        </>
+      )}
+
+      {others.length > 0 && (
+        <>
+          <h2>More explainers</h2>
+          <ul class="chapters">
+            {others.map((o) => <li><a href={`/explained/${o.slug}/`}>{o.title}</a></li>)}
+          </ul>
+        </>
+      )}
+    </div>
+  </article>
+  <script type="application/ld+json" set:html={JSON.stringify(videoLd)} />
+</Base>
+
+<style>
+  .back { display: block; margin-bottom: 20px; font-size: 0.9rem; }
+  h1 { margin-top: 16px; max-width: 860px; }
+  .video { position: relative; max-width: 900px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .small { font-size: 0.9rem; }
+  .watch { margin: 12px 0 0; }
+  .note { max-width: 760px; margin: 18px 0 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 8px; }
+  .story { max-width: 760px; margin-top: 40px; }
+  .part { margin-bottom: 44px; }
+  .label { display: block; color: var(--accent); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .part h2 { font-size: 1.5rem; margin: 0 0 14px; }
+  .part p { font-size: 1.08rem; line-height: 1.7; margin: 0; }
+  figure { margin: 0 0 16px; }
+  figure img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); display: block; }
+  figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+  .after { max-width: 760px; }
+  .tool { margin: 8px 0 0; font-size: 1.08rem; font-weight: 600; }
+  .after h2 { font-size: 1.25rem; margin: 30px 0 10px; }
+  .chapters, .sources { list-style: none; margin: 0; padding: 0; }
+  .chapters li, .sources li { padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .chapters a { color: var(--text); }
+  .chapters a:hover { color: var(--accent); }
+  .time { display: inline-block; min-width: 3.2em; color: var(--accent); font-variant-numeric: tabular-nums; }
+</style>
