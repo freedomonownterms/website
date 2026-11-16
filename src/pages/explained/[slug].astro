@@ -83,9 +83,9 @@ const videoLd = {
           <ul class="sources">
             {e.sources.map(([name, href]) => <li><a href={href} target="_blank" rel="noopener noreferrer">{name}</a></li>)}
           </ul>
-          <p class="muted small">Pictures are simplified illustrations, not to scale.</p>
         </>
       )}
+      {e.slug !== 'chatgpt-resume-experiment' && <p class="muted small note-pics">Pictures are simplified illustrations, not to scale.</p>}
 
       {others.length > 0 && (
         <>

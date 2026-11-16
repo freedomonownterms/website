@@ -81,24 +81,7 @@ export const explainers = [
         "The whole journey"
       ]
     ],
-    "sources": [
-      [
-        "Nvidia: Inside Blackwell Ultra",
-        "https://developer.nvidia.com/blog/inside-nvidia-blackwell-ultra-the-chip-powering-the-ai-factory-era"
-      ],
-      [
-        "ASML annual report (chip production time, how layers are built)",
-        "https://www.sec.gov/Archives/edgar/data/937966/000093796622000013/asml-20211231.htm"
-      ],
-      [
-        "The Next Web: ASML, the only maker of EUV machines",
-        "https://thenextweb.com/news/asml-euv-cycle-time-cut-capacity-ai-demand"
-      ],
-      [
-        "MKS (Entegris): silicon wafer production",
-        "https://www.mks.com/n/silicon-wafer-production"
-      ]
-    ],
+    "sources": [],
     "sections": [
       {
         "label": "Tech explained",
@@ -283,28 +266,7 @@ export const explainers = [
         "Wrap-up"
       ]
     ],
-    "sources": [
-      [
-        "NOAA NCEI: World Magnetic Model",
-        "https://www.ncei.noaa.gov/products/world-magnetic-model"
-      ],
-      [
-        "ESA: Swarm probes weakening of Earth's magnetic field",
-        "https://www.esa.int/Applications/Observing_the_Earth/FutureEO/Swarm/Swarm_probes_weakening_of_Earth_s_magnetic_field"
-      ],
-      [
-        "ESA: Swarm reveals growing weak spot in Earth's magnetic field",
-        "https://www.esa.int/Applications/Observing_the_Earth/FutureEO/Swarm/Swarm_reveals_growing_weak_spot_in_Earth_s_magnetic_field"
-      ],
-      [
-        "Wikipedia: Geomagnetic reversal",
-        "https://en.wikipedia.org/wiki/Geomagnetic_reversal"
-      ],
-      [
-        "Scientific American: how long the last reversal took",
-        "https://www.scientificamerican.com/article/earths-magnetic-field-reversal-took-three-times-longer-than-thought/"
-      ]
-    ],
+    "sources": [],
     "sections": [
       {
         "label": "Science explained",
