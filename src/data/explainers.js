@@ -2,6 +2,390 @@
 // Made by private/youtube/export-explainers.mjs, then reviewed. Newest first.
 export const explainers = [
   {
+    "slug": "history-of-ai",
+    "youtubeId": "oqg9yClyJsY",
+    "uploaded": "2026-11-16T02:03:10Z",
+    "seconds": 278,
+    "title": "The History of AI: Who Started It and the Moments That Changed Everything",
+    "description": "Who started AI, and how did we get from 1950 to ChatGPT? From Alan Turing and the 1956 Dartmouth workshop to the AI winters, Deep Blue, deep learning, transformers, ChatGPT and the 2024 Nobel Prizes, explained simply.",
+    "topic": "AI history",
+    "relatedHref": "/prompts/",
+    "relatedLabel": "Try the free AI Prompt Library",
+    "chapters": [
+      [
+        "0:00",
+        "Intro"
+      ],
+      [
+        "0:12",
+        "Who started AI?"
+      ],
+      [
+        "0:27",
+        "1950: Alan Turing"
+      ],
+      [
+        "0:42",
+        "1956: the birth of AI"
+      ],
+      [
+        "1:00",
+        "IBM and machine learning"
+      ],
+      [
+        "1:13",
+        "1958: the perceptron"
+      ],
+      [
+        "1:27",
+        "1966: ELIZA, an early chatbot"
+      ],
+      [
+        "1:40",
+        "The AI winters"
+      ],
+      [
+        "1:54",
+        "Expert systems and backpropagation"
+      ],
+      [
+        "2:12",
+        "1997: Deep Blue"
+      ],
+      [
+        "2:25",
+        "2012: deep learning takes off"
+      ],
+      [
+        "2:41",
+        "2016: AlphaGo"
+      ],
+      [
+        "2:54",
+        "2017: the transformer"
+      ],
+      [
+        "3:09",
+        "GPT models grow"
+      ],
+      [
+        "3:27",
+        "2022: ChatGPT"
+      ],
+      [
+        "3:40",
+        "The AI race"
+      ],
+      [
+        "3:53",
+        "2024: the Nobel Prizes"
+      ],
+      [
+        "4:11",
+        "The whole story"
+      ]
+    ],
+    "sources": [],
+    "sections": [
+      {
+        "label": "AI explained",
+        "heading": "The history of AI, from 1950 to today",
+        "text": "ChatGPT feels brand new. But the story of AI started more than 70 years ago. So, which company started it? And what were the big moments that brought us here? Let's travel through the history of AI.",
+        "image": "/explained/history-of-ai/01.webp"
+      },
+      {
+        "label": "Who started it?",
+        "heading": "Not one company: scientists started it",
+        "text": "First, the surprise. AI wasn't started by one company. It began with scientists, mostly at universities, asking a simple question: can a machine think? Companies like IBM joined very early, but the idea came from researchers.",
+        "image": "/explained/history-of-ai/02.webp",
+        "caption": "Universities first, with companies like IBM joining early."
+      },
+      {
+        "label": "1950",
+        "heading": "Alan Turing asks: can machines think?",
+        "text": "In 1950, the British mathematician Alan Turing published a famous paper asking, can machines think? He suggested a test. If a person chatting with a machine can't tell it apart from a human, the machine could be called intelligent. We still call it the Turing test.",
+        "image": "/explained/history-of-ai/03.webp",
+        "caption": "1950: the idea that became the Turing test."
+      },
+      {
+        "label": "1956: the birth of AI",
+        "heading": "1956: the name artificial intelligence is born",
+        "text": "In 1956, a group of scientists met for a summer workshop at Dartmouth College in the United States. The proposal, written by John McCarthy, Marvin Minsky, Claude Shannon and Nathaniel Rochester of IBM, used a new name: artificial intelligence. Many people call this the birth of AI.",
+        "image": "/explained/history-of-ai/04.webp",
+        "caption": "The Dartmouth workshop. The proposal was co-written by IBM's Nathaniel Rochester."
+      },
+      {
+        "label": "The first company",
+        "heading": "IBM and the first machine learning",
+        "text": "So if you want a company that was there at the start, it's IBM. Arthur Samuel at IBM built a checkers program that got better the more it played. In 1959 he made popular a new term for this: machine learning.",
+        "image": "/explained/history-of-ai/05.webp",
+        "caption": "Arthur Samuel's checkers program learned from experience."
+      },
+      {
+        "label": "1958: a brain-like machine",
+        "heading": "The perceptron: an artificial neuron",
+        "text": "In 1958, Frank Rosenblatt introduced the perceptron, a simple artificial neuron inspired by the brain. It could learn to recognise basic patterns. It's the great-grandparent of today's neural networks.",
+        "image": "/explained/history-of-ai/06.webp",
+        "caption": "Frank Rosenblatt, 1958. The ancestor of neural networks."
+      },
+      {
+        "label": "1966: the first chatbot",
+        "heading": "ELIZA: one of the first chatbots",
+        "text": "In the mid-1960s, Joseph Weizenbaum at MIT created ELIZA, one of the first chatbots. It just followed simple rules, often turning your words into a question. But people still felt it understood them.",
+        "image": "/explained/history-of-ai/07.webp",
+        "caption": "MIT, mid-1960s. Simple rules, but it felt human."
+      },
+      {
+        "label": "The AI winters",
+        "heading": "The AI winters",
+        "text": "Then came disappointment. AI had promised too much, too soon. Computers were slow, and progress stalled. Funding was cut in the 1970s, and again in the late 1980s. These cold periods are called the AI winters.",
+        "image": "/explained/history-of-ai/08.webp",
+        "caption": "Big promises, slow computers, funding cuts: 1970s and late 1980s."
+      },
+      {
+        "label": "1980s: expert systems",
+        "heading": "Rules, then a better way to learn",
+        "text": "In between, the 1980s brought expert systems. These programs used thousands of if-then rules written by human experts, and businesses used them to make decisions. And in 1986, researchers including Geoffrey Hinton made popular a way to train neural networks, called backpropagation.",
+        "image": "/explained/history-of-ai/09.webp",
+        "caption": "Expert systems, and backpropagation (1986) for training neural networks."
+      },
+      {
+        "label": "1997: man vs machine",
+        "heading": "Deep Blue beats the world chess champion",
+        "text": "In 1997, IBM's Deep Blue computer beat world chess champion Garry Kasparov in a match. For the first time, a machine had beaten the world's best player at a game seen as a test of human intelligence.",
+        "image": "/explained/history-of-ai/10.webp",
+        "caption": "IBM's Deep Blue vs Garry Kasparov, 1997."
+      },
+      {
+        "label": "2012: deep learning takes off",
+        "heading": "2012: deep learning takes off",
+        "text": "The real turning point came in 2012. A neural network called AlexNet, from Geoffrey Hinton's group in Toronto, crushed a famous image recognition contest called ImageNet. The secret? Lots of data, and Nvidia graphics chips to train it fast. Deep learning had arrived.",
+        "image": "/explained/history-of-ai/11.webp",
+        "caption": "AlexNet won ImageNet using Nvidia graphics chips."
+      },
+      {
+        "label": "2016: AlphaGo",
+        "heading": "AlphaGo masters the game of Go",
+        "text": "In 2016, AlphaGo, from Google's DeepMind, beat top Go player Lee Sedol. Go has more possible positions than chess by a huge margin, and many experts thought this was still years away.",
+        "image": "/explained/history-of-ai/12.webp",
+        "caption": "Google DeepMind beat Lee Sedol in 2016."
+      },
+      {
+        "label": "2017: the transformer",
+        "heading": "The transformer changes everything",
+        "text": "In 2017, researchers at Google published a paper called Attention Is All You Need. It introduced the transformer, a design that lets AI look at all the words in a sentence at once and work out how they relate. Almost every modern chatbot is built on it.",
+        "image": "/explained/history-of-ai/13.webp",
+        "caption": "Google's 2017 paper “Attention Is All You Need”."
+      },
+      {
+        "label": "Bigger and bigger",
+        "heading": "GPT models grow over 1,000× bigger",
+        "text": "OpenAI used transformers to build GPT models, and made them much bigger each time. GPT-1 had about 117 million parameters. GPT-2 had 1.5 billion. GPT-3, in 2020, had 175 billion.",
+        "image": "/explained/history-of-ai/14.webp",
+        "caption": "GPT-1: 117 million, GPT-2: 1.5 billion, GPT-3: 175 billion parameters."
+      },
+      {
+        "label": "November 2022",
+        "heading": "ChatGPT reaches 100 million users",
+        "text": "Then, on 30 November 2022, OpenAI released ChatGPT. Anyone could simply chat with it. It reportedly reached 100 million users in about two months, one of the fastest-growing apps ever.",
+        "image": "/explained/history-of-ai/15.webp",
+        "caption": "Launched 30 November 2022. 100 million users in about two months, reportedly."
+      },
+      {
+        "label": "The AI race",
+        "heading": "The AI race begins",
+        "text": "That started a race. Google, Anthropic, Meta, Microsoft and others launched their own AI assistants and models. AI moved from text into images, voice and video, and into the phones and apps we use every day.",
+        "image": "/explained/history-of-ai/16.webp",
+        "caption": "Many companies, and AI in text, images, voice and video."
+      },
+      {
+        "label": "2024: the Nobel Prizes",
+        "heading": "AI pioneers win Nobel Prizes",
+        "text": "In 2024, AI even won Nobel Prizes. The physics prize went to John Hopfield and Geoffrey Hinton for their work on neural networks. And part of the chemistry prize went to Demis Hassabis and John Jumper of Google DeepMind, for AlphaFold, which predicts the shapes of proteins.",
+        "image": "/explained/history-of-ai/17.webp",
+        "caption": "Physics: Hopfield and Hinton. Chemistry: Hassabis and Jumper (AlphaFold), with David Baker."
+      },
+      {
+        "label": "The whole story",
+        "heading": "70+ years, thousands of people",
+        "text": "So, here's the story. An idea in 1950, a name in 1956, winters and comebacks, then deep learning, transformers and ChatGPT. AI wasn't one company's invention. It was built by thousands of people over 70 years, and the next chapter is being written right now.",
+        "image": "/explained/history-of-ai/18.webp"
+      }
+    ]
+  },
+  {
+    "slug": "global-transformer-shortage",
+    "youtubeId": "PLMOviE4w5c",
+    "uploaded": "2026-11-15T09:04:25Z",
+    "seconds": 204,
+    "title": "The Global Transformer Shortage: Why the World Can't Get Enough",
+    "description": "The world is running short of power transformers, the machines that connect power plants, solar farms and AI data centres to the grid. Why waits stretch to years, what is driving demand, and what it means, explained simply.",
+    "topic": "Technology",
+    "relatedHref": "/news/",
+    "relatedLabel": "Read today's AI news",
+    "chapters": [
+      [
+        "0:00",
+        "Intro"
+      ],
+      [
+        "0:13",
+        "What a transformer does"
+      ],
+      [
+        "0:28",
+        "Where they're needed"
+      ],
+      [
+        "0:40",
+        "Waiting times and prices"
+      ],
+      [
+        "1:06",
+        "Demand explodes"
+      ],
+      [
+        "1:22",
+        "Driver 1: AI data centres"
+      ],
+      [
+        "1:33",
+        "Driver 2: going electric"
+      ],
+      [
+        "1:44",
+        "Driver 3: an ageing grid"
+      ],
+      [
+        "1:55",
+        "Why not build more?"
+      ],
+      [
+        "2:07",
+        "Special materials and a risky bet"
+      ],
+      [
+        "2:32",
+        "The impact"
+      ],
+      [
+        "2:44",
+        "New factories"
+      ],
+      [
+        "3:01",
+        "What it means"
+      ]
+    ],
+    "sources": [],
+    "sections": [
+      {
+        "label": "Tech explained",
+        "heading": "The world is running out of transformers",
+        "text": "The world is running short of a machine most people never notice. Without it, new power plants, solar farms and AI data centres can't connect to the grid. It's the power transformer. So why is there a shortage, and what does it mean for us?",
+        "image": "/explained/global-transformer-shortage/01.webp"
+      },
+      {
+        "label": "What it does",
+        "heading": "Stepping voltage up and down",
+        "text": "First, what does a transformer do? Electricity travels long distances at very high voltage, because that wastes less energy. Transformers step the voltage up at the power plant, then step it back down, again and again, until it's safe to use in our homes.",
+        "image": "/explained/global-transformer-shortage/02.webp",
+        "caption": "High voltage for long distances, low voltage for homes."
+      },
+      {
+        "label": "Everywhere",
+        "heading": "Every part of the grid needs them",
+        "text": "That means every power plant, every wind and solar farm, every substation, and every big data centre needs transformers. The largest ones are the size of a house, and weigh hundreds of tonnes.",
+        "image": "/explained/global-transformer-shortage/03.webp",
+        "caption": "The biggest are the size of a house."
+      },
+      {
+        "label": "The waiting list",
+        "heading": "Waits of up to 4 years",
+        "text": "And right now, they're hard to get. According to Wood Mackenzie, waiting times went from around 50 weeks in 2021, to about 120 weeks on average in 2024. For some large, high-capacity units, analysts now talk about waits of up to 4 years.",
+        "image": "/explained/global-transformer-shortage/04.webp",
+        "caption": "About 50 weeks in 2021, about 120 weeks on average in 2024 (Wood Mackenzie)."
+      },
+      {
+        "label": "Rising prices",
+        "heading": "Prices up 60–80% since 2020",
+        "text": "Prices have jumped too. Wood Mackenzie found transformer prices rose by 60 to 80% on average since the start of 2020.",
+        "image": "/explained/global-transformer-shortage/05.webp",
+        "caption": "Average increase since January 2020 (Wood Mackenzie)."
+      },
+      {
+        "label": "Demand explodes",
+        "heading": "Demand up 274% in six years",
+        "text": "The main reason is demand. In the US, Wood Mackenzie says demand for the big transformers that connect power plants to the grid rose by 274% between 2019 and 2025. Demand for substation transformers more than doubled.",
+        "image": "/explained/global-transformer-shortage/06.webp",
+        "caption": "US generator step-up transformers, 2019 to 2025 (Wood Mackenzie)."
+      },
+      {
+        "label": "Driver 1: AI",
+        "heading": "AI data centres are power hungry",
+        "text": "What's driving it? The first big driver is AI. Data centres that train and run AI use huge amounts of electricity, and each new one needs its own grid connection, full of transformers.",
+        "image": "/explained/global-transformer-shortage/07.webp",
+        "caption": "Each new data centre needs its own grid connection."
+      },
+      {
+        "label": "Driver 2: going electric",
+        "heading": "Cars, heating, factories, renewables",
+        "text": "The second driver is electrification. Electric cars, electric heating, factories switching from fuel to electricity, and new solar and wind farms all add load to the grid.",
+        "image": "/explained/global-transformer-shortage/08.webp",
+        "caption": "More of everything runs on electricity."
+      },
+      {
+        "label": "Driver 3: an ageing grid",
+        "heading": "Old transformers need replacing",
+        "text": "And third, the grid is getting old. In the US, many transformers are past their design life of 35 to 40 years. They all need replacing, at the same time as demand is booming.",
+        "image": "/explained/global-transformer-shortage/09.webp",
+        "caption": "Many are past their 35 to 40 year design life (Wood Mackenzie, US)."
+      },
+      {
+        "label": "Why not build more?",
+        "heading": "Each one is custom-built",
+        "text": "So why not just build more? Because big transformers aren't mass produced. Most are custom-built for one specific site, by a small number of specialist factories, with skilled workers who take years to train.",
+        "image": "/explained/global-transformer-shortage/10.webp",
+        "caption": "Few specialist factories, and skilled workers are scarce."
+      },
+      {
+        "label": "Special materials",
+        "heading": "Special steel and lots of copper",
+        "text": "They also need special materials. The core is made from a special kind of steel, called grain-oriented electrical steel, and the coils use lots of copper. Wood Mackenzie says the price of that steel nearly doubled since 2020, and copper rose about 50%.",
+        "image": "/explained/global-transformer-shortage/11.webp",
+        "caption": "Electrical steel nearly doubled in price since 2020, copper about +50% (Wood Mackenzie)."
+      },
+      {
+        "label": "A risky bet",
+        "heading": "New factories are a risky bet",
+        "text": "And building a new factory is a risky bet. It costs a fortune, and it can take decades to pay back. Many makers were cautious, in case demand fell again.",
+        "image": "/explained/global-transformer-shortage/12.webp",
+        "caption": "It can take decades to break even."
+      },
+      {
+        "label": "The impact",
+        "heading": "Projects stuck waiting for power",
+        "text": "The result? Data centres waiting for power, and clean energy projects stuck in a queue. Back in 2024, Wood Mackenzie warned that up to a quarter of the world's renewable projects could face delays.",
+        "image": "/explained/global-transformer-shortage/13.webp",
+        "caption": "Up to 25% of renewable projects could face delays (Wood Mackenzie, 2024)."
+      },
+      {
+        "label": "The fix",
+        "heading": "New factories are coming",
+        "text": "The industry is responding. Hitachi Energy has announced more than $1 billion of investment, including a new US plant due to open in 2028. Siemens is building a new transformer factory in North Carolina. But new factories take years to build.",
+        "image": "/explained/global-transformer-shortage/14.webp",
+        "caption": "Hitachi Energy: over $1 billion. Siemens: a new US factory."
+      },
+      {
+        "label": "What it means",
+        "heading": "A shortage that will last for years",
+        "text": "So experts expect the shortage to last for years. It could mean slower grid upgrades, delays for new data centres and solar farms, and pressure on electricity costs. A quiet machine, holding up the future of energy and AI.",
+        "image": "/explained/global-transformer-shortage/15.webp",
+        "caption": "Slower grid upgrades, project delays, pressure on costs."
+      }
+    ]
+  },
+  {
     "slug": "how-nvidia-ai-chips-are-made",
     "youtubeId": "K1NGnJju3wU",
     "uploaded": "2026-11-14T18:10:55Z",
