@@ -4,6 +4,7 @@ import { products } from '../../data/products.js';
 import { library } from '../../data/prompts.js';
 import { renderOg } from '../../lib/og.js';
 import { explainers } from '../../data/explainers.js';
+import { courses } from '../../data/courses.js';
 
 export function getStaticPaths() {
   return [
@@ -22,6 +23,9 @@ export function getStaticPaths() {
     },
     { params: { slug: 'explained' }, props: { title: 'Explained: tech, science and AI, explained simply', kicker: 'Videos + articles', footer: 'Watch or read' } },
     ...explainers.map((e) => ({ params: { slug: `explained-${e.slug}` }, props: { title: e.title, kicker: `Explained · ${e.topic}`, footer: `${Math.round(e.seconds / 60)} min video` } })),
+    { params: { slug: 'courses' }, props: { title: 'Courses: free video courses, explained simply', kicker: 'Videos + written lessons', footer: 'Watch or read' } },
+    ...courses.map((c) => ({ params: { slug: `course-${c.slug}` }, props: { title: c.title, kicker: `Course · ${c.level}`, footer: `${c.lessons.length} ${c.lessons.length === 1 ? 'lesson' : 'lessons'} · free` } })),
+    ...courses.flatMap((c) => c.lessons.map((l) => ({ params: { slug: `course-${c.slug}-${l.slug}` }, props: { title: l.title, kicker: `${c.short} · Lesson ${l.n}`, footer: `${Math.round(l.seconds / 60)} min video` } }))),
     ...getGuides().map((g) => ({ params: { slug: g.slug }, props: { title: g.title, kicker: g.category, footer: g.readTime } })),
     ...products.map((p) => ({
       params: { slug: p.slug },

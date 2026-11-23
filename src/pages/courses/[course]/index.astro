@@ -1,0 +1,56 @@
+---
+// One course: its lessons in order, each with its video and written version.
+import Base from '../../../layouts/Base.astro';
+import { courses } from '../../../data/courses.js';
+
+export function getStaticPaths() {
+  return courses.map((c) => ({ params: { course: c.slug }, props: { c } }));
+}
+
+const { c } = Astro.props;
+const minutes = (s) => `${Math.max(1, Math.round(s / 60))} min`;
+---
+
+<Base title={c.title} description={c.description} ogImage={`/og/course-${c.slug}.png`}>
+  <section class="container page-head">
+    <a href="/courses/" class="back">← All courses</a>
+    <span class="chip violet">{c.level}</span>
+    <h1>{c.title}</h1>
+    <p>{c.description}</p>
+    <p class="muted small"><a href={c.playlist} target="_blank" rel="noopener">Watch the whole series on YouTube ↗</a></p>
+  </section>
+
+  <section class="container">
+    <ol class="lessons">
+      {c.lessons.map((l) => (
+        <li>
+          <span class="num">Lesson {l.n}</span>
+          <div>
+            <a href={`/courses/${c.slug}/${l.slug}/`} class="title">{l.title}</a>
+            <p class="muted">{l.description}</p>
+          </div>
+          <span class="len muted">{minutes(l.seconds)}</span>
+        </li>
+      ))}
+    </ol>
+    <p class="muted soon">More lessons are on the way. Subscribe on YouTube to get them first.</p>
+  </section>
+</Base>
+
+<style>
+  .back { display: block; margin-bottom: 20px; font-size: 0.9rem; }
+  h1 { margin-top: 16px; max-width: 860px; }
+  .small { font-size: 0.9rem; }
+  .lessons { list-style: none; margin: 0; padding: 0; }
+  .lessons li { display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--border); }
+  .num { color: var(--accent); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding-top: 6px; }
+  .title { color: var(--text); font-family: var(--font-head); font-size: 1.25rem; font-weight: 700; }
+  .title:hover { color: var(--accent); text-decoration: none; }
+  .lessons p { margin: 8px 0 0; max-width: 760px; }
+  .len { white-space: nowrap; font-size: 0.9rem; padding-top: 4px; }
+  .soon { margin-top: 24px; }
+  @media (max-width: 600px) {
+    .lessons li { grid-template-columns: 1fr; gap: 4px; }
+    .len { display: none; }
+  }
+</style>

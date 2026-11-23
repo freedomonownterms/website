@@ -1,0 +1,144 @@
+---
+// One course lesson: the YouTube video, then the same lesson as a written article with its pictures.
+import Base from '../../../layouts/Base.astro';
+import ShareButtons from '../../../components/ShareButtons.astro';
+import { courses } from '../../../data/courses.js';
+
+export function getStaticPaths() {
+  return courses.flatMap((c) => c.lessons.map((l) => ({ params: { course: c.slug, lesson: l.slug }, props: { c, l } })));
+}
+
+const { c, l } = Astro.props;
+const prev = c.lessons.find((x) => x.n === l.n - 1);
+const next = c.lessons.find((x) => x.n === l.n + 1);
+const seconds = (t) => t.split(':').reduce((a, b) => a * 60 + Number(b), 0);
+const watch = `https://www.youtube.com/watch?v=${l.youtubeId}`;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const courseUrl = new URL(`/courses/${c.slug}/`, Astro.site).href;
+// Tells search engines this page has a video that belongs to a course.
+const videoLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: l.title,
+  description: l.description,
+  thumbnailUrl: [`https://i.ytimg.com/vi/${l.youtubeId}/hqdefault.jpg`],
+  uploadDate: l.uploaded,
+  duration: `PT${Math.floor(l.seconds / 60)}M${l.seconds % 60}S`,
+  embedUrl: `https://www.youtube-nocookie.com/embed/${l.youtubeId}`,
+  contentUrl: watch,
+  url: pageUrl,
+  isPartOf: { '@type': 'Course', name: c.title, description: c.description, url: courseUrl, provider: { '@type': 'Organization', name: 'Freedom On Own Terms', sameAs: 'https://freedomonownterms.com' } },
+};
+---
+
+<Base title={l.title} description={l.description} type="article" published={l.uploaded} ogImage={`/og/course-${c.slug}-${l.slug}.png`}>
+  <article class="container protected">
+    <header class="page-head">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="/courses/">Courses</a> / <a href={`/courses/${c.slug}/`}>{c.short}</a></nav>
+      <span class="chip violet">{c.short} · Lesson {l.n}</span>
+      <h1>{l.title}</h1>
+      <p>{l.description}</p>
+    </header>
+
+    <div class="video">
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${l.youtubeId}?rel=0`}
+        title={l.title}
+        loading="lazy"
+        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <p class="muted small watch">Prefer to read? The whole lesson is written out below, with its pictures. <a href={watch} target="_blank" rel="noopener">Watch on YouTube ↗</a></p>
+
+    <details class="toc">
+      <summary>Chapters ({l.chapters.length})</summary>
+      <ul class="chapters">
+        {l.chapters.map(([t, name]) => (
+          <li><a href={`${watch}&t=${seconds(t)}s`} target="_blank" rel="noopener"><span class="time">{t}</span> {name}</a></li>
+        ))}
+      </ul>
+    </details>
+
+    <div class="story">
+      {l.sections.map((s) => (
+        <section class="part">
+          {s.label && <span class="label">{s.label}</span>}
+          <h2>{s.heading}</h2>
+          {s.image && (
+            <figure>
+              <img src={s.image} alt={s.caption ?? s.heading} loading="lazy" width="1200" />
+              {s.caption && <figcaption>{s.caption}</figcaption>}
+            </figure>
+          )}
+          {s.code && (
+            <figure>
+              <pre class="code"><code>{s.code}</code></pre>
+              {s.caption && <figcaption>{s.caption}</figcaption>}
+            </figure>
+          )}
+          <p>{s.text}</p>
+          {!s.image && !s.code && s.caption && <p class="key">{s.caption}</p>}
+        </section>
+      ))}
+    </div>
+
+    <div class="after">
+      <p class="muted small">Pictures are simplified illustrations. © {new Date(l.uploaded).getFullYear()} Freedom On Own Terms. All rights reserved. This lesson may not be copied or republished.</p>
+      <div class="pager">
+        {prev ? <a href={`/courses/${c.slug}/${prev.slug}/`}>← Lesson {prev.n}: {prev.title}</a> : <span></span>}
+        {next ? <a href={`/courses/${c.slug}/${next.slug}/`} class="next">Lesson {next.n}: {next.title} →</a> : <span class="muted">Lesson {l.n + 1} is coming soon. <a href={c.playlist} target="_blank" rel="noopener">Follow the series on YouTube ↗</a></span>}
+      </div>
+      <p class="tool"><a href={`/courses/${c.slug}/`}>All lessons in the {c.title} →</a></p>
+      <ShareButtons title={l.title} label="Found this useful? Share it" />
+    </div>
+  </article>
+  <script type="application/ld+json" set:html={JSON.stringify(videoLd)} />
+</Base>
+
+<script>
+  // Course lessons: discourage copying (no selecting, copying, right-click, dragging pictures or printing).
+  const area = document.querySelector('.protected');
+  const block = (e) => { if (area?.contains(e.target as Node)) e.preventDefault(); };
+  ['copy', 'cut', 'contextmenu', 'dragstart', 'selectstart'].forEach((t) => document.addEventListener(t, block));
+  document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'a', 's', 'p', 'u'].includes(k)) e.preventDefault();
+  });
+</script>
+
+<style>
+  .protected { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .protected img { -webkit-user-drag: none; pointer-events: none; }
+  @media print { .protected { display: none; } }
+  .crumbs { margin-bottom: 20px; font-size: 0.9rem; color: var(--muted); }
+  h1 { margin-top: 16px; max-width: 860px; }
+  .video { position: relative; max-width: 900px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .small { font-size: 0.9rem; }
+  .watch { margin: 12px 0 0; }
+  .toc { max-width: 760px; margin-top: 24px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .toc summary { cursor: pointer; font-weight: 600; }
+  .toc .chapters { margin-top: 10px; }
+  .story { max-width: 760px; margin-top: 40px; }
+  .part { margin-bottom: 44px; }
+  .label { display: block; color: var(--accent); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .part h2 { font-size: 1.5rem; margin: 0 0 14px; }
+  .part p { font-size: 1.08rem; line-height: 1.7; margin: 0; }
+  .part p.key { margin-top: 14px; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 8px; font-size: 1rem; }
+  figure { margin: 0 0 16px; }
+  figure img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); display: block; }
+  figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+  .code { margin: 0; padding: 18px 20px; overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); font-size: 1rem; line-height: 1.5; }
+  .after { max-width: 760px; }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin: 24px 0 8px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .pager .next { text-align: right; }
+  .tool { margin: 16px 0 0; font-size: 1.08rem; font-weight: 600; }
+  .chapters { list-style: none; margin: 0; padding: 0; }
+  .chapters li { padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .chapters li:last-child { border-bottom: 0; }
+  .chapters a { color: var(--text); }
+  .chapters a:hover { color: var(--accent); }
+  .time { display: inline-block; min-width: 3.6em; color: var(--accent); font-variant-numeric: tabular-nums; }
+</style>

@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import { courses } from '../../data/courses.js';
+
+const total = (c) => Math.round(c.lessons.reduce((n, l) => n + l.seconds, 0) / 60);
+---
+
+<Base title="Courses" description="Free video courses, explained simply. Every lesson is also written out step by step, with pictures." ogImage="/og/courses.png">
+  <section class="container page-head">
+    <h1><span class="gradient-text">Courses</span></h1>
+    <p>Free video courses, explained simply. Watch each lesson, or read it step by step with pictures.</p>
+  </section>
+
+  <section class="container">
+    <table class="list">
+      <tbody>
+        {courses.map((c) => (
+          <tr>
+            <td>
+              <span class="topic">{c.level}</span>
+              <a href={`/courses/${c.slug}/`} class="title">{c.title}</a>
+              <p class="muted">{c.description}</p>
+            </td>
+            <td class="len muted">{c.lessons.length} {c.lessons.length === 1 ? 'lesson' : 'lessons'}<br />{total(c)} min</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</Base>
+
+<style>
+  .list { width: 100%; border-collapse: collapse; }
+  .list td { padding: 22px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .topic { display: block; color: var(--accent); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .title { color: var(--text); font-family: var(--font-head); font-size: 1.35rem; font-weight: 700; }
+  .title:hover { color: var(--accent); text-decoration: none; }
+  .list p { margin: 8px 0 0; max-width: 760px; }
+  .len { white-space: nowrap; text-align: right; padding-left: 20px; font-size: 0.9rem; }
+  @media (max-width: 600px) { .len { display: none; } }
+</style>

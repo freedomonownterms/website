@@ -1,9 +1,13 @@
 ---
+import { courses } from '../data/courses.js';
+
 const links = [
   { href: '/news/', label: 'News' },
   { href: '/tools/', label: 'Tools' },
   { href: '/guides/', label: 'Guides' },
   { href: '/explained/', label: 'Explained' },
+  // A drop-down: one entry per course, then the list of all courses.
+  { href: '/courses/', label: 'Courses', children: [...courses.map((c) => ({ href: `/courses/${c.slug}/`, label: c.short })), { href: '/courses/', label: 'All courses' }] },
   { href: '/prompts/', label: 'Prompts' },
   { href: '/weather/', label: 'Weather' },
   { href: '/shop/', label: 'Shop' },
@@ -26,9 +30,22 @@ const path = Astro.url.pathname;
       <span></span><span></span><span></span>
     </button>
     <nav id="site-nav">
-      {links.map((l) => (
-        <a href={l.href} class={path.startsWith(l.href) ? 'active' : ''}>{l.label}</a>
-      ))}
+      {links.map((l) =>
+        l.children ? (
+          <div class="drop">
+            <button type="button" class={`drop-btn ${path.startsWith(l.href) ? 'active' : ''}`} aria-expanded="false" aria-haspopup="true">
+              {l.label} <span class="caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="drop-menu">
+              {l.children.map((c) => (
+                <a href={c.href} class={path === c.href ? 'active' : ''}>{c.label}</a>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <a href={l.href} class={path.startsWith(l.href) ? 'active' : ''}>{l.label}</a>
+        )
+      )}
     </nav>
   </div>
 </header>
@@ -40,6 +57,24 @@ const path = Astro.url.pathname;
     const open = nav?.classList.toggle('open');
     btn.setAttribute('aria-expanded', String(!!open));
   });
+  // Drop-down menus open on click (and close on a click elsewhere or Escape).
+  const drops = document.querySelectorAll('.drop');
+  const closeAll = (except) => drops.forEach((d) => {
+    if (d === except) return;
+    d.classList.remove('open');
+    d.querySelector('.drop-btn')?.setAttribute('aria-expanded', 'false');
+  });
+  drops.forEach((d) => {
+    const b = d.querySelector('.drop-btn');
+    b?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAll(d);
+      const open = d.classList.toggle('open');
+      b.setAttribute('aria-expanded', String(open));
+    });
+  });
+  document.addEventListener('click', () => closeAll());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAll(); });
 </script>
 
 <style>
@@ -65,6 +100,7 @@ const path = Astro.url.pathname;
     font-family: var(--font-head);
     font-weight: 700;
     font-size: 1.1rem;
+    white-space: nowrap;
   }
   .logo:hover { text-decoration: none; }
   .mark { position: relative; display: inline-flex; }
@@ -78,15 +114,45 @@ const path = Astro.url.pathname;
     line-height: 1;
     color: var(--muted);
   }
-  nav { display: flex; gap: 6px; }
+  nav { display: flex; gap: 4px; }
   nav a {
     color: var(--muted);
-    padding: 8px 14px;
+    padding: 8px 11px;
     border-radius: 999px;
     font-weight: 500;
   }
   nav a:hover { color: var(--text); text-decoration: none; background: var(--surface); }
   nav a.active { color: var(--text); background: var(--surface-2); }
+  .drop { position: relative; display: flex; }
+  .drop-btn {
+    font: inherit;
+    font-weight: 500;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    padding: 8px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .drop-btn:hover, .drop.open .drop-btn { color: var(--text); background: var(--surface); }
+  .drop-btn.active { color: var(--text); background: var(--surface-2); }
+  .caret { font-size: 0.75em; margin-left: 2px; }
+  .drop-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 190px;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+  .drop.open .drop-menu { display: flex; }
+  .drop-menu a { border-radius: 10px; white-space: nowrap; }
   .menu-btn {
     display: none;
     background: none;
@@ -103,7 +169,7 @@ const path = Astro.url.pathname;
     background: var(--text);
     border-radius: 2px;
   }
-  @media (max-width: 1100px) {
+  @media (max-width: 1240px) {
     .menu-btn { display: flex; }
     nav {
       display: none;
@@ -117,5 +183,8 @@ const path = Astro.url.pathname;
       border-bottom: 1px solid var(--border);
     }
     nav.open { display: flex; }
+    .drop { flex-direction: column; }
+    .drop-btn { text-align: left; }
+    .drop-menu { position: static; box-shadow: none; border: 0; padding: 0 0 0 16px; min-width: 0; }
   }
 </style>
