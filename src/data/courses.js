@@ -15,7 +15,7 @@ export const courses = [
         "youtubeId": "tL3P27NZj2Y",
         "uploaded": "2026-11-23T16:15:20Z",
         "seconds": 1868,
-        "title": "PostgreSQL Full Introduction for Beginners: Why, History, EDB and Architecture",
+        "title": "PostgreSQL Full Introduction: Why, History, EDB and Architecture",
         "description": "What PostgreSQL is, why companies moved to it, where it came from, who supports it (community and EDB), and a first look at how it works inside: processes, memory, storage and the journey of a query.",
         "chapters": [
           [
@@ -631,6 +631,420 @@ export const courses = [
             "heading": "Let's recap",
             "text": "Let's recap. Companies wanted a free, relational database for transactions and analytics, with security, high availability, disaster recovery, point in time recovery and support. PostgreSQL matched every point. It grew from Berkeley's POSTGRES project, became PostgreSQL in 1996, earned trust through word of mouth, and today has both community and EDB editions. And its architecture starts with users, interfaces and processes.",
             "image": "/courses/postgresql/introduction/82.webp"
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "slug": "architecture",
+        "youtubeId": "QuKyur7WHF0",
+        "uploaded": "2026-11-24T05:11:37Z",
+        "seconds": 1231,
+        "title": "PostgreSQL Architecture: What Happens When You Run a Query",
+        "description": "What really happens when you connect to PostgreSQL and run a query: ports and client tools, the postmaster and backend processes, pg_hba.conf, the five steps of a query, EXPLAIN and statistics, and postgresql.conf.",
+        "chapters": [
+          [
+            "0:00",
+            "Welcome and today's plan"
+          ],
+          [
+            "0:46",
+            "What architecture means"
+          ],
+          [
+            "1:25",
+            "Three parts, and the hotel picture"
+          ],
+          [
+            "2:17",
+            "The server: IP address and port 5432"
+          ],
+          [
+            "3:19",
+            "End users and client interfaces"
+          ],
+          [
+            "4:04",
+            "Connecting with psql"
+          ],
+          [
+            "5:11",
+            "The postmaster and backend processes"
+          ],
+          [
+            "6:27",
+            "pg_hba.conf: who may connect"
+          ],
+          [
+            "8:39",
+            "Can't connect? A four-step checklist"
+          ],
+          [
+            "9:26",
+            "The path of a query"
+          ],
+          [
+            "10:14",
+            "Step 1: the parser"
+          ],
+          [
+            "10:56",
+            "Step 2: the analyzer"
+          ],
+          [
+            "11:19",
+            "Step 3: the rewriter"
+          ],
+          [
+            "11:43",
+            "Step 4: the planner and EXPLAIN"
+          ],
+          [
+            "12:40",
+            "Statistics, and why queries suddenly slow down"
+          ],
+          [
+            "13:52",
+            "Step 5: the executor"
+          ],
+          [
+            "14:14",
+            "Permissions"
+          ],
+          [
+            "15:16",
+            "Myth: the result cache"
+          ],
+          [
+            "15:44",
+            "postgresql.conf and ALTER SYSTEM"
+          ],
+          [
+            "16:30",
+            "Reload or restart?"
+          ],
+          [
+            "17:44",
+            "The data directory"
+          ],
+          [
+            "18:12",
+            "The whole journey"
+          ],
+          [
+            "18:37",
+            "Coming from Oracle?"
+          ],
+          [
+            "19:09",
+            "Interview questions"
+          ],
+          [
+            "19:36",
+            "Recap"
+          ]
+        ],
+        "sections": [
+          {
+            "label": "Welcome back",
+            "heading": "What happens when you run a query?",
+            "text": "Hi, hello everyone, and welcome back to our PostgreSQL series. In the last video, we saw what PostgreSQL is, why so many companies chose it, where it came from, and who supports it. Today, we'll look at the general architecture of PostgreSQL. In simple words: what really happens, step by step, from the moment you connect and run a query, until the result comes back to your screen."
+          },
+          {
+            "label": "Today's plan",
+            "heading": "Six stops on today's journey",
+            "text": "Here's our plan. First, the big picture: what architecture means, and why a database administrator must know it. Then, how a client connects: IP addresses, ports and client tools. Next, the gatekeeper: a process called the postmaster, and a file called pg_hba.conf. After that, the steps every query goes through. Then the main settings file, postgresql.conf. And finally, a recap, with some interview questions.",
+            "image": "/courses/postgresql/architecture/02.webp"
+          },
+          {
+            "label": "The big picture",
+            "heading": "Architecture = the end-to-end flow",
+            "text": "So what do we mean by architecture? For a database administrator, architecture means the complete end to end flow. Someone does something with the database, maybe a simple select, maybe a big update. The architecture is everything that happens in the background, from the very first moment of that request, until the work is finished and the answer is sent back.",
+            "caption": "From the first click to the last row of the result."
+          },
+          {
+            "label": "Why it matters",
+            "heading": "Know the flow, find the failure point",
+            "text": "Why does this matter? Because every problem happens at a specific step. A user can't log in. A query is suddenly slow. An application gets an error at two in the morning. If you know the flow, you can ask the right question: did it fail while connecting, while checking permissions, while planning, or while reading the data? Knowing the step is half of the fix.",
+            "caption": "Every error comes from one specific step."
+          },
+          {
+            "label": "Three parts",
+            "heading": "Today: the general flow",
+            "text": "In this series, we'll study the architecture in three parts. Today, the general flow: how a connection is made, and how a query travels through PostgreSQL. In the next video, memory: how PostgreSQL uses memory, like shared buffers. And after that, the processes that run in the background. Underneath all three is storage, the data directory on disk. This split is a teaching choice, not an official one, but it makes a big topic much easier to learn.",
+            "image": "/courses/postgresql/architecture/05.webp"
+          },
+          {
+            "label": "An everyday picture",
+            "heading": "Think of a hotel",
+            "text": "Let's use an everyday picture to hold it all together. Think of a hotel. You arrive at the front door, and the reception desk greets you. Reception checks the guest list: are you booked, and can you prove who you are? If yes, the hotel gives you a personal butler, who looks after every request you make during your stay. And the whole hotel follows a book of house rules. Keep this hotel in mind. Every part of it has a real name in PostgreSQL, and we'll meet them one by one.",
+            "image": "/courses/postgresql/architecture/06.webp"
+          },
+          {
+            "label": "The server",
+            "heading": "An address, and a door",
+            "text": "First, the hotel building itself: the database server. It's a machine somewhere, maybe in a data centre, maybe in the cloud, and it has an IP address, for example 10.20.30.40. Every program that accepts connections also listens on a port, a numbered door. PostgreSQL's default port is 5432. For comparison, Oracle's listener usually uses 1521, and MySQL uses 3306. You can change the port, but 5432 is what you'll see almost everywhere.",
+            "image": "/courses/postgresql/architecture/07.webp"
+          },
+          {
+            "label": "A common surprise",
+            "heading": "By default, PostgreSQL only listens on localhost",
+            "text": "Here's a detail that surprises many beginners. After a fresh install, PostgreSQL usually listens only on localhost, which means only programs on the same machine can connect. If your application runs on another server, you must change a setting called listen_addresses, and restart PostgreSQL. Until then, remote connections are refused before PostgreSQL even looks at who you are. Remember this. It's one of the most common reasons for the question: why can't I connect?",
+            "caption": "Set listen_addresses, then restart, to accept remote connections."
+          },
+          {
+            "label": "End users",
+            "heading": "Everyone who sends work to the database",
+            "text": "Now, who are the guests? We call them end users. Imagine a food delivery app. The customers ordering dinner are product users. The developers building new features are end users too. So are the database administrators looking after the database, and the application teams who run the app servers. Anyone who sends work to the database is an end user.",
+            "image": "/courses/postgresql/architecture/09.webp"
+          },
+          {
+            "label": "Client interfaces",
+            "heading": "Nobody walks in without an interface",
+            "text": "No end user touches the database files directly. Everyone goes through a client interface. There are three main kinds. Graphical tools, like pgAdmin or DBeaver, with windows and buttons. The command line tool, PSQL, where you type your commands. And applications, written in Java, Python, Node or other languages, which connect through a database driver. Different doors in, but every connection ends up at the same PostgreSQL server.",
+            "image": "/courses/postgresql/architecture/10.webp"
+          },
+          {
+            "label": "Try it",
+            "heading": "Connecting with psql",
+            "text": "Here's what a connection looks like with PSQL. -h gives the host, 10.20.30.40. -p gives the port, 5432. Dash capital U gives the user, Maria. And -d gives the database, shop. pgAdmin and application drivers ask for exactly the same four things, just in a different form.",
+            "code": "psql -h 10.20.30.40 -p 5432 -U maria -d shop",
+            "caption": "Host, port, user and database: the four basics."
+          },
+          {
+            "label": "The request",
+            "heading": "What a connection request carries",
+            "text": "So every connection request carries a few key facts. Who is connecting: the user, Maria. Which database she wants: shop. Where she's coming from: her computer's IP address, called the client IP, here 10.20.30.50. And where she's going: the server's address and port. Plus, usually, proof of identity, like a password. PostgreSQL uses these facts to decide whether to let her in.",
+            "image": "/courses/postgresql/architecture/12.webp"
+          },
+          {
+            "label": "Client IP",
+            "heading": "Through an app server, many users share one client IP",
+            "text": "One small but important point about the client IP. When Maria connects from her own laptop, the client IP is her laptop's address. But when thousands of customers use the food delivery app, they don't connect to the database themselves. The application server connects for all of them. So the database sees just one client IP, the app server's, often with one shared database user. Keep that in mind when you read connection logs.",
+            "caption": "The app server connects for all of them."
+          },
+          {
+            "label": "The postmaster",
+            "heading": "One backend process per connection",
+            "text": "Now the request reaches the server. Waiting at the door is the reception desk of our hotel: a process called the postmaster. It's the first PostgreSQL process that starts, and it listens on the port for new connections. When a connection request arrives, the postmaster starts a brand new process, just for that connection, called a backend process. Maria gets one backend. Leo gets another. The app server gets one for each of its connections. This is called the process per user model.",
+            "image": "/courses/postgresql/architecture/14.webp"
+          },
+          {
+            "label": "Your personal butler",
+            "heading": "The backend handles everything for your session",
+            "text": "That backend process is your personal butler. From now on, it does everything for your session. It checks who you are, it reads your queries, plans them, runs them, and sends the results back. The postmaster goes straight back to the door, waiting for the next guest. One small correction to something you may read online: it's the new backend process, not the postmaster itself, that checks the guest list. The postmaster just opens the door and hands you over.",
+            "caption": "Authentication, parsing, planning and running your queries."
+          },
+          {
+            "label": "Try it",
+            "heading": "Seeing backends on Linux",
+            "text": "You can actually see these backend processes on a Linux server. Run ps, and look for postgres. Each backend shows up as its own line, with the user name, the database, the client IP and port, and what it's doing right now. Here, Maria is connected to the shop database from 10.20.30.50, and she's idle, waiting to type her next query. For a database administrator, this is a very handy view.",
+            "code": "postgres: maria shop 10.20.30.50(52344) idle",
+            "caption": "One line per connection in the ps output."
+          },
+          {
+            "label": "The guest list",
+            "heading": "pg_hba.conf: who may connect",
+            "text": "Now the guest list. The backend checks a file called pg_hba.conf. HBA stands for host based authentication. Each line says: this type of connection, to this database, by this user, from this address, must prove itself in this way. Look at the second line: Maria may connect to the shop database, only from 10.20.30.50, using a password with a method called scram. The last line rejects everyone else.",
+            "image": "/courses/postgresql/architecture/17.webp"
+          },
+          {
+            "label": "First match wins",
+            "heading": "The first matching line decides",
+            "text": "Here's the rule that catches people out. PostgreSQL reads the file from top to bottom, and uses the first line that matches the connection type, database, user and address. There's no second chance. If that line's check fails, PostgreSQL doesn't try the lines below it. And if no line matches at all, the connection is refused. So the order of the lines really matters. Put the specific rules first, and the general ones last.",
+            "caption": "No match, or a failed check, means no entry."
+          },
+          {
+            "label": "Try it",
+            "heading": "When there's no matching line",
+            "text": "This is the error you'll see when no line matches. In plain words: Maria tried to connect from a different computer, and the guest list has no line for her from that address. The message tells you exactly which host, user and database to check.",
+            "code": "FATAL:  no pg_hba.conf entry for host \"10.20.30.77\", user \"maria\", database \"shop\"",
+            "caption": "The guest list has no line for this connection."
+          },
+          {
+            "label": "Ways to prove identity",
+            "heading": "Use scram-sha-256 for passwords",
+            "text": "The last column, the method, says how users must prove who they are. For passwords, the recommended method is scram-sha-256. The older md5 method is deprecated, and will be removed in a future release. Peer is common for local connections on Linux: if you're logged in as the Linux user postgres, you connect as the database user postgres. And trust lets anyone in with no password at all, so avoid it, except on a test machine that only you can reach.",
+            "caption": "md5 is deprecated; trust lets anyone in."
+          },
+          {
+            "label": "In real companies",
+            "heading": "Change the file, then reload",
+            "text": "In a real company, users can't add themselves to this file. A developer or application team raises a request, and the database administrator team adds the right line, for the right user, database and address. After editing the file, you don't need a restart. You tell PostgreSQL to reload its configuration, with pg_ctl reload, or with the SQL function pg_reload_conf(). And before reloading, a view called pg_hba_file_rules shows how PostgreSQL reads each line, which helps you catch mistakes early.",
+            "caption": "pg_ctl reload or SELECT pg_reload_conf();"
+          },
+          {
+            "label": "Can't connect?",
+            "heading": "Four checks, in order",
+            "text": "Let's turn this into a simple checklist for connection problems. One: is PostgreSQL listening on the right address and port? Two: can the client reach the server at all, or is a firewall blocking the way? Three: is there a pg_hba.conf line that allows this user, database and address? And four: is the user name and password correct, for the method in that line? Check them in this order, and most connection problems are solved in minutes.",
+            "image": "/courses/postgresql/architecture/22.webp"
+          },
+          {
+            "label": "One more limit",
+            "heading": "max_connections: how many guests at once",
+            "text": "One more limit at the door. A setting called max_connections decides how many sessions can be connected at the same time. The default is usually 100. When every slot is taken, new users get the error: sorry, too many clients already. Remember that from the first video? Now you know where it comes from. Usually, the fix is a connection pooler, rather than just raising the number, but we'll talk about that later in the series.",
+            "caption": "The default is usually 100."
+          },
+          {
+            "label": "The path of a query",
+            "heading": "Five steps inside the backend",
+            "text": "Maria is in. Now she runs a query. Inside her backend process, every query passes through five main steps. The parser checks the grammar. The analyzer checks that the tables and columns really exist. The rewriter expands views and rules. The planner works out the cheapest way to get the answer. And the executor actually does the work, and sends back the rows. This is based on a chapter in the official documentation called the path of a query. Let's follow one query through all five.",
+            "image": "/courses/postgresql/architecture/24.webp"
+          },
+          {
+            "label": "Try it",
+            "heading": "Maria's query",
+            "text": "Here's Maria's query. In plain English: show me the order numbers and amounts for customer number 42. It looks simple. But behind the scenes, PostgreSQL does quite a lot of thinking before it reads a single row.",
+            "code": "SELECT order_id, total FROM orders WHERE customer_id = 42;",
+            "caption": "We'll follow this one query through every step."
+          },
+          {
+            "label": "Step 1: the parser",
+            "heading": "Is the grammar right?",
+            "text": "Step one, the parser. It reads the query as plain text, and checks only the grammar. Are the keywords spelled correctly? Are they in the right order? Are the brackets and commas where they should be? Think of a spell checker reading a letter before it's posted. At this stage, PostgreSQL doesn't even look at your tables. It only checks that the sentence is valid SQL. If it is, the parser builds a tree that describes the query.",
+            "caption": "Spelling and structure only, no table lookups yet."
+          },
+          {
+            "label": "Try it",
+            "heading": "A typo stops it at step 1",
+            "text": "If you make a typo, this is where it stops. Suppose Maria types FORM instead of FROM. The parser replies: ERROR: syntax error at or near \"FORM\". Notice that PostgreSQL even points to the word where it got confused. Whenever you see syntax error, you know the query never got past step one.",
+            "code": "ERROR:  syntax error at or near \"FORM\"",
+            "caption": "Someone typed FORM instead of FROM."
+          },
+          {
+            "label": "Step 2: the analyzer",
+            "heading": "Do these tables and columns exist?",
+            "text": "Step two, the analyzer. The official documentation calls it the transformation process. Now PostgreSQL looks up the names in its system catalog. Is there really a table called orders? Does it have columns called order_id, total and customer_id? What are their data types? If Maria had typed \"order\", without the s, she would get: ERROR: relation \"order\" does not exist. The grammar was fine, but the table wasn't there.",
+            "caption": "Now PostgreSQL looks things up in its catalog."
+          },
+          {
+            "label": "Step 3: the rewriter",
+            "heading": "Views are expanded into real tables",
+            "text": "Step three, the rewriter. This step matters mostly when you use views. A view is a saved query with a short name. Say a team creates a view called big_orders, which means: orders with a total above $500. When someone selects from big_orders, the rewriter swaps the short name for the real query underneath, so PostgreSQL works on the actual tables. For Maria's simple query, there's nothing to rewrite, and it passes straight through.",
+            "caption": "A view is a saved query with a short name."
+          },
+          {
+            "label": "Step 4: the planner",
+            "heading": "Many ways to the answer, pick the cheapest",
+            "text": "Step four, the planner, also called the optimizer. This is the brain of the whole process. There's usually more than one way to get the answer. Think of finding one book in a huge library. You could walk past every shelf, checking every book. Or, you could look it up in the catalogue, and go straight to aisle B, shelf seven. In PostgreSQL, walking every shelf is a sequential scan. Using the catalogue is an index scan. The planner estimates the cost of each way, and picks the cheapest.",
+            "image": "/courses/postgresql/architecture/30.webp"
+          },
+          {
+            "label": "Try it",
+            "heading": "EXPLAIN shows the plan",
+            "text": "You can see the planner's choice yourself. Put the word EXPLAIN in front of any query. PostgreSQL doesn't run it. Instead, it shows the plan it would use. Here, it chose an index scan on the customer_id index, and it estimates about 11 rows. The cost numbers are not seconds. They're relative units the planner uses to compare one plan with another. EXPLAIN is one of the most useful tools a database administrator has, and we'll use it a lot later in the series.",
+            "code": "Index Scan using orders_customer_id_idx on orders (cost=0.43..12.50 rows=11 width=14)",
+            "caption": "Simplified EXPLAIN output for Maria's query."
+          },
+          {
+            "label": "Statistics",
+            "heading": "The planner relies on statistics",
+            "text": "But how does the planner know that customer 42 has about 11 orders? It uses statistics: facts about each table, collected in advance. How many rows there are, and how much space the table takes on disk. Which values appear most often. How many distinct values a column has, and how many are empty. These statistics are gathered by a command called ANALYZE, and automatically by a background process called autovacuum.",
+            "image": "/courses/postgresql/architecture/32.webp"
+          },
+          {
+            "label": "Out of date?",
+            "heading": "Old statistics, wrong plan",
+            "text": "Now, what if the statistics are out of date? Imagine using a sat nav with a map from five years ago. It confidently sends you down a road that's been closed for years, while a brand new road sits right next to it. The sat nav isn't stupid. It's just working with old information. The planner is exactly the same. Give it wrong numbers, and it makes a wrong plan.",
+            "image": "/courses/postgresql/architecture/33.webp"
+          },
+          {
+            "label": "A real example",
+            "heading": "Analysed at 100 rows, now 5 million",
+            "text": "Here's how that looks in real life. A new table is analysed when it has just 100 rows. Then a big data load adds 5 million rows, before the statistics are updated. The planner may still think the table is tiny, and choose a plan that's fine for 100 rows, but terribly slow for 5 million. The query that took milliseconds yesterday now takes minutes. The fix is often simple: run ANALYZE on the table, and make sure autovacuum is working properly.",
+            "caption": "Fix: run ANALYZE, and keep autovacuum healthy."
+          },
+          {
+            "label": "Step 5: the executor",
+            "heading": "The executor does the real work",
+            "text": "Step five, the executor. It takes the chosen plan and follows it, step by step. It reads the table and index pages it needs. If those pages are already in memory, that's fast. If not, it reads them from disk. Then it filters the rows, sorts them or joins them with other tables if the plan says so, and finally sends the rows back over the connection to Maria.",
+            "image": "/courses/postgresql/architecture/35.webp"
+          },
+          {
+            "label": "Permissions",
+            "heading": "No privilege, no data",
+            "text": "Getting in through the door doesn't mean you can read everything. Before any data is read, PostgreSQL checks that the user has the right privilege on every table in the query. Maria may be allowed to connect to the shop database, but if nobody granted her select on the orders table, the query stops right there. Connecting and reading are two separate permissions.",
+            "caption": "Checked before a single row is read."
+          },
+          {
+            "label": "Try it",
+            "heading": "When the privilege is missing",
+            "text": "And this is the message she gets: ERROR: permission denied for table orders. Notice the difference from the earlier error. The pg_hba.conf error said FATAL, and happened at the door, before she got in. This one says ERROR, and happens later, inside her session, for one specific table. Reading the first word of the message already tells you which part of the architecture to look at.",
+            "code": "ERROR:  permission denied for table orders",
+            "caption": "Connected fine, but no SELECT privilege on this table."
+          },
+          {
+            "label": "The result",
+            "heading": "Rows go back to where you asked",
+            "text": "Finally, the rows travel back to wherever the query came from. In PSQL, you see a neat table printed on your screen. In pgAdmin, the results appear in a grid. In an application, the driver hands the rows to the code, which might show Maria's past orders on a web page. Same server, same five steps, different ways of showing the answer.",
+            "caption": "psql prints a table; an app receives a result set."
+          },
+          {
+            "label": "A common myth",
+            "heading": "PostgreSQL has no result cache",
+            "text": "Let's clear up a common myth. You may hear that PostgreSQL keeps a cache of finished query results, and that's why the second run is faster. That's not true. PostgreSQL doesn't store query results for reuse. The second run is often faster for a different reason: the table and index pages it needs are already in memory, in PostgreSQL's shared buffers and in the operating system's cache, so less is read from disk. We'll look at shared buffers properly in the next video.",
+            "caption": "Repeat runs are faster because the data is already in memory."
+          },
+          {
+            "label": "The house rules",
+            "heading": "postgresql.conf: the house rules",
+            "text": "Now, the house rules. Every step we've seen uses resources: memory, processor time, disk, and connections. How much of each is allowed is controlled by settings, and the main place for them is a file called postgresql.conf. It holds hundreds of settings, each listed with its default value, and many with a short comment explaining what it does. Port, listen_addresses, max_connections, shared buffers and logging are all set here.",
+            "image": "/courses/postgresql/architecture/40.webp"
+          },
+          {
+            "label": "ALTER SYSTEM",
+            "heading": "postgresql.auto.conf overrides postgresql.conf",
+            "text": "There's a second file next to it, called postgresql.auto.conf. You don't edit this one by hand. It's written for you when you use the SQL command ALTER SYSTEM. For example, ALTER SYSTEM SET work_mem = '64MB'. If the same setting appears in both files, the auto file wins. So when a setting doesn't behave as you expect, always check both.",
+            "caption": "Written by ALTER SYSTEM; don't edit it by hand."
+          },
+          {
+            "label": "Reload or restart?",
+            "heading": "Some settings need a restart",
+            "text": "Here's something every database administrator must know: not every change takes effect the same way. Many settings only need a reload, which is instant, and doesn't disconnect anyone. But some can only be changed when the server starts, like port, listen_addresses, max_connections and shared buffers. For those, you need a restart, which means planning downtime. Changing a restart setting and only reloading is a classic mistake: the file says one thing, but the server is still using the old value.",
+            "caption": "port, listen_addresses, max_connections, shared_buffers and more."
+          },
+          {
+            "label": "Try it",
+            "heading": "Checking a setting",
+            "text": "How do you know which kind a setting is? Ask the view called pg_settings. It shows each setting's current value, and a column called context. If the context says postmaster, the setting needs a restart. If it says sighup, a reload is enough. And if it says user, each user can even change it for their own session. Two quick commands also help: SHOW config_file and SHOW hba_file, tell you exactly where the files are.",
+            "code": "SELECT name, setting, context FROM pg_settings WHERE name IN ('max_connections', 'work_mem');",
+            "caption": "context = postmaster means a restart is needed."
+          },
+          {
+            "label": "Finer control",
+            "heading": "Settings per database, per user, per session",
+            "text": "Settings don't have to be the same for everyone. With ALTER DATABASE, you can give one database its own value. With ALTER ROLE, you can give one user a different value, for example more memory for the reporting user who runs big queries. And with SET, a user can change some settings just for their current session. The house rules have a general rule, plus special rules for particular guests.",
+            "caption": "ALTER DATABASE, ALTER ROLE and SET."
+          },
+          {
+            "label": "The data directory",
+            "heading": "Where it all lives",
+            "text": "So where do all these files live? Usually, in the data directory. That's the folder where PostgreSQL keeps everything: the configuration files we just discussed, the actual table and index files, and the write ahead log. The exact path depends on how PostgreSQL was installed. On some Linux systems, the configuration files are kept in a separate folder. When in doubt, connect and run: SHOW data_directory. We'll explore this folder in detail later in the series.",
+            "image": "/courses/postgresql/architecture/45.webp"
+          },
+          {
+            "label": "The whole journey",
+            "heading": "From click to result",
+            "text": "Let's put the whole journey together. Maria's client sends a connection request to the server's address and port. The postmaster starts a backend process just for her. The backend checks pg_hba.conf, and her password. Then, for each query, the backend parses and analyzes it, rewrites it if needed, plans the cheapest route, and executes it, sending the rows back. And through every step, the settings in postgresql.conf set the limits.",
+            "image": "/courses/postgresql/architecture/46.webp"
+          },
+          {
+            "label": "Coming from Oracle?",
+            "heading": "Familiar ideas, new names",
+            "text": "If you already know Oracle, here's a quick map. The postmaster does the job of the Oracle listener, waiting on a port for new connections. A backend process is like an Oracle dedicated server process: one per session. pg_hba.conf is a bit like valid node checking in sqlnet.ora, combined with how users authenticate. postgresql.conf plays the role of the spfile. And one difference: Oracle has a result cache, PostgreSQL doesn't. These aren't exact twins, but they help you find your feet.",
+            "image": "/courses/postgresql/architecture/47.webp"
+          },
+          {
+            "label": "Interview questions",
+            "heading": "Questions you can now answer",
+            "text": "You can now answer some very common interview questions. What happens when you run a query in PostgreSQL? What's the difference between the postmaster and a backend process? What is pg_hba.conf, and how are its lines matched? What's the difference between a reload and a restart? Why might a query suddenly become slow? And how do you see the plan for a query? Try answering each one out loud, in your own words. If you can, you really understand today's video.",
+            "caption": "Postmaster vs backend · pg_hba.conf · reload vs restart · EXPLAIN"
+          },
+          {
+            "label": "Recap",
+            "heading": "Connect, check, parse, plan, execute",
+            "text": "Let's recap. Every client reaches the server through an interface, on an IP address and a port, usually 5432. The postmaster starts one backend process per connection. The backend checks pg_hba.conf, where the first matching line decides. Every query is parsed, analyzed, rewritten, planned using statistics, and executed. There's no result cache, but data already in memory makes repeat runs faster. And postgresql.conf, plus the auto file, control the resources, with some settings needing a restart.",
+            "caption": "And postgresql.conf sets the limits for every step."
           }
         ]
       }
