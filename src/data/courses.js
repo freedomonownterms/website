@@ -575,7 +575,7 @@ export const courses = [
           {
             "label": "Main parts",
             "heading": "Processes, memory and storage",
-            "text": "There's no single official way to divide PostgreSQL's architecture, but most DBAs learn it in three main parts. First, the processes: the postmaster, one backend process for each connection, and background processes like the checkpointer and the WAL writer. Second, the memory: shared memory, such as shared buffers, plus private working memory for each process. And third, the storage: the data directory on disk, with the data files and the write ahead log. Running through all three is the path of a query. Let's take our first steps.",
+            "text": "There's no single official way to divide PostgreSQL's architecture, but most DBAs learn it in three main parts. First, the processes: the postmaster, one backend process for each connection, and background processes like the checkpointer and the WAL writer. Second, the memory: shared memory, such as shared_buffers, plus private working memory for each process. And third, the storage: the data directory on disk, with the data files and the write ahead log. Running through all three is the path of a query. Let's take our first steps.",
             "image": "/courses/postgresql/introduction/73.webp"
           },
           {
@@ -771,7 +771,7 @@ export const courses = [
           {
             "label": "Three parts",
             "heading": "Today: the general flow",
-            "text": "In this series, we'll study the architecture in three parts. Today, the general flow: how a connection is made, and how a query travels through PostgreSQL. In the next video, memory: how PostgreSQL uses memory, like shared buffers. And after that, the processes that run in the background. Underneath all three is storage, the data directory on disk. This split is a teaching choice, not an official one, but it makes a big topic much easier to learn.",
+            "text": "In this series, we'll study the architecture in three parts. Today, the general flow: how a connection is made, and how a query travels through PostgreSQL. In the next video, memory: how PostgreSQL uses memory, like shared_buffers. And after that, the processes that run in the background. Underneath all three is storage, the data directory on disk. This split is a teaching choice, not an official one, but it makes a big topic much easier to learn.",
             "image": "/courses/postgresql/architecture/05.webp"
           },
           {
@@ -982,13 +982,13 @@ export const courses = [
           {
             "label": "A common myth",
             "heading": "PostgreSQL has no result cache",
-            "text": "Let's clear up a common myth. You may hear that PostgreSQL keeps a cache of finished query results, and that's why the second run is faster. That's not true. PostgreSQL doesn't store query results for reuse. The second run is often faster for a different reason: the table and index pages it needs are already in memory, in PostgreSQL's shared buffers and in the operating system's cache, so less is read from disk. We'll look at shared buffers properly in the next video.",
+            "text": "Let's clear up a common myth. You may hear that PostgreSQL keeps a cache of finished query results, and that's why the second run is faster. That's not true. PostgreSQL doesn't store query results for reuse. The second run is often faster for a different reason: the table and index pages it needs are already in memory, in PostgreSQL's shared_buffers and in the operating system's cache, so less is read from disk. We'll look at shared_buffers properly in the next video.",
             "caption": "Repeat runs are faster because the data is already in memory."
           },
           {
             "label": "The house rules",
             "heading": "postgresql.conf: the house rules",
-            "text": "Now, the house rules. Every step we've seen uses resources: memory, processor time, disk, and connections. How much of each is allowed is controlled by settings, and the main place for them is a file called postgresql.conf. It holds hundreds of settings, each listed with its default value, and many with a short comment explaining what it does. Port, listen_addresses, max_connections, shared buffers and logging are all set here.",
+            "text": "Now, the house rules. Every step we've seen uses resources: memory, processor time, disk, and connections. How much of each is allowed is controlled by settings, and the main place for them is a file called postgresql.conf. It holds hundreds of settings, each listed with its default value, and many with a short comment explaining what it does. Port, listen_addresses, max_connections, shared_buffers and logging are all set here.",
             "image": "/courses/postgresql/architecture/40.webp"
           },
           {
@@ -1000,7 +1000,7 @@ export const courses = [
           {
             "label": "Reload or restart?",
             "heading": "Some settings need a restart",
-            "text": "Here's something every database administrator must know: not every change takes effect the same way. Many settings only need a reload, which is instant, and doesn't disconnect anyone. But some can only be changed when the server starts, like port, listen_addresses, max_connections and shared buffers. For those, you need a restart, which means planning downtime. Changing a restart setting and only reloading is a classic mistake: the file says one thing, but the server is still using the old value.",
+            "text": "Here's something every database administrator must know: not every change takes effect the same way. Many settings only need a reload, which is instant, and doesn't disconnect anyone. But some can only be changed when the server starts, like port, listen_addresses, max_connections and shared_buffers. For those, you need a restart, which means planning downtime. Changing a restart setting and only reloading is a classic mistake: the file says one thing, but the server is still using the old value.",
             "caption": "port, listen_addresses, max_connections, shared_buffers and more."
           },
           {
@@ -1045,6 +1045,304 @@ export const courses = [
             "heading": "Connect, check, parse, plan, execute",
             "text": "Let's recap. Every client reaches the server through an interface, on an IP address and a port, usually 5432. The postmaster starts one backend process per connection. The backend checks pg_hba.conf, where the first matching line decides. Every query is parsed, analyzed, rewritten, planned using statistics, and executed. There's no result cache, but data already in memory makes repeat runs faster. And postgresql.conf, plus the auto file, control the resources, with some settings needing a restart.",
             "caption": "And postgresql.conf sets the limits for every step."
+          }
+        ]
+      },
+      {
+        "n": 3,
+        "slug": "memory",
+        "youtubeId": "-ONEyXqA7M0",
+        "uploaded": "2026-11-25T10:57:56Z",
+        "seconds": 811,
+        "title": "PostgreSQL Memory: shared_buffers, work_mem and More",
+        "description": "How PostgreSQL uses memory and how to size it safely: shared vs private memory, shared_buffers, wal_buffers, work_mem and why it multiplies, maintenance_work_mem, temp_buffers, effective_cache_size, and a worked example for a 32 GB server.",
+        "chapters": [
+          [
+            "0:00",
+            "Welcome and today's plan"
+          ],
+          [
+            "0:44",
+            "Why memory matters"
+          ],
+          [
+            "1:07",
+            "Shared vs private memory"
+          ],
+          [
+            "1:56",
+            "shared_buffers: the data cache"
+          ],
+          [
+            "2:47",
+            "Why repeat queries are faster"
+          ],
+          [
+            "3:28",
+            "How big should shared_buffers be?"
+          ],
+          [
+            "4:42",
+            "wal_buffers"
+          ],
+          [
+            "5:38",
+            "Transaction status caches"
+          ],
+          [
+            "6:07",
+            "Private memory per backend"
+          ],
+          [
+            "6:31",
+            "work_mem: sorting and hashing"
+          ],
+          [
+            "7:22",
+            "Spotting spills with EXPLAIN ANALYZE"
+          ],
+          [
+            "7:44",
+            "Why work_mem multiplies"
+          ],
+          [
+            "8:09",
+            "work_mem per database, user or session"
+          ],
+          [
+            "8:33",
+            "maintenance_work_mem and autovacuum_work_mem"
+          ],
+          [
+            "9:25",
+            "temp_buffers"
+          ],
+          [
+            "9:48",
+            "effective_cache_size"
+          ],
+          [
+            "10:14",
+            "Restart or reload?"
+          ],
+          [
+            "10:37",
+            "Worked example: a 32 GB server"
+          ],
+          [
+            "11:06",
+            "Measuring the results"
+          ],
+          [
+            "11:27",
+            "Coming from Oracle?"
+          ],
+          [
+            "11:51",
+            "Four myths busted"
+          ],
+          [
+            "12:15",
+            "Interview questions"
+          ],
+          [
+            "12:37",
+            "Recap"
+          ]
+        ],
+        "sections": [
+          {
+            "label": "Welcome back",
+            "heading": "How PostgreSQL uses memory",
+            "text": "Hi, hello everyone, and welcome back to our PostgreSQL series. In the last video, we saw the general architecture: how a client connects, how pg_hba.conf decides who gets in, and the steps every query goes through. Today, we'll look at memory. Where PostgreSQL keeps data while it works, which settings control it, and how to size them without crashing your server."
+          },
+          {
+            "label": "Today's plan",
+            "heading": "Six stops on today's journey",
+            "text": "Here's our plan. First, why memory matters so much for a database. Then the shared memory that every process uses, mainly shared_buffers and wal_buffers. Then the private memory each process gets, like work_mem. After that, a setting that sounds like memory but isn't really, effective_cache_size. Then a worked sizing example for a real server. And finally, a recap with interview questions.",
+            "image": "/courses/postgresql/memory/02.webp"
+          },
+          {
+            "label": "Why memory?",
+            "heading": "Memory is fast, disk is slow",
+            "text": "Why does memory matter so much? Think of a chef in a busy kitchen. The countertop is right at hand, so anything on it can be grabbed in a second. The storeroom holds everything, but every trip there takes time. Memory is the countertop: tiny compared to disk, but enormously faster. Disk is the storeroom. A well tuned database keeps the data it uses most on the countertop, and walks to the storeroom as rarely as possible.",
+            "image": "/courses/postgresql/memory/03.webp"
+          },
+          {
+            "label": "The big picture",
+            "heading": "Shared memory, private memory, and the OS cache",
+            "text": "Let's look at a server with 32 GB of memory. PostgreSQL uses two kinds. Shared memory is one big area that every PostgreSQL process can see and use together. Private memory belongs to one process only, for its own work, like sorting. And underneath, the operating system keeps its own file cache, which PostgreSQL also relies on. Keep this map in mind. Every setting today lives in one of these boxes.",
+            "image": "/courses/postgresql/memory/04.webp"
+          },
+          {
+            "label": "Shared vs private",
+            "heading": "Shared memory is set at startup",
+            "text": "There's one key difference between them. Shared memory is reserved once, when PostgreSQL starts, and it stays the same size until the next restart. Private memory is different. A backend takes it only when a query actually needs it, for example to sort some rows, and gives it back when that work is finished. That's why changing shared memory needs a restart, while most private memory settings can be changed on the fly.",
+            "caption": "Private memory is taken when needed, then released."
+          },
+          {
+            "label": "shared_buffers",
+            "heading": "The shared countertop",
+            "text": "The biggest part of shared memory is shared_buffers. This is PostgreSQL's own data cache. Tables and indexes are stored on disk in pages of 8 KB each. When a backend needs a page, it first looks in shared_buffers. If the page is there, great, no disk read needed. If not, it reads the page from disk into shared_buffers, and then uses it. And because the area is shared, once Maria's query has loaded a page, Leo's query can use it too.",
+            "image": "/courses/postgresql/memory/06.webp"
+          },
+          {
+            "label": "Changes happen in memory",
+            "heading": "Changed pages become dirty",
+            "text": "shared_buffers aren't only for reading. When you insert, update or delete, PostgreSQL changes the page in shared_buffers, not directly on disk. A page that has been changed in memory, but not yet written to disk, is called a dirty page. Writing dirty pages to the data files happens later, in the background, by processes we'll meet in the next video. So shared_buffers are used by every normal query, not just by PostgreSQL's internal work.",
+            "caption": "They're written to disk later, by background processes."
+          },
+          {
+            "label": "Remember this?",
+            "heading": "Why the second run is faster",
+            "text": "Remember the myth from the last video? People say PostgreSQL caches query results, because the second run of a query is faster. Now you can see the real reason. The first run read the table's pages from disk into shared_buffers. The second run finds those same pages already in memory, so it skips the slow trip to the storeroom.",
+            "caption": "The pages are already on the countertop."
+          },
+          {
+            "label": "Default and limits",
+            "heading": "Default 128 MB, needs a restart",
+            "text": "The default for shared_buffers is 128 MB. That's deliberately small, so PostgreSQL can start on almost any machine. Technically, the minimum is just 128 kilobytes, but nobody runs a real system like that. On any production server, you'll want much more. And because shared_buffers are shared memory, a new value only takes effect after a restart.",
+            "caption": "The minimum is 128 kilobytes, but that's only for tiny test systems."
+          },
+          {
+            "label": "How big?",
+            "heading": "Start at 25% of memory",
+            "text": "So how big should it be? The official documentation gives a clear starting point. On a dedicated database server with at least 1 GB of memory, start with 25% of the total. So a 32 GB server starts with 8 GB. Some workloads benefit from more, but the documentation says that going above 40% is unlikely to help, because PostgreSQL also relies on the operating system's own cache.",
+            "image": "/courses/postgresql/memory/10.webp"
+          },
+          {
+            "label": "Don't be greedy",
+            "heading": "Bigger isn't always better",
+            "text": "Why not just give shared_buffers most of the memory? Because the rest has important jobs. Every connection needs private memory. The operating system needs memory to run, and its file cache helps PostgreSQL too. If you take too much, the server can start swapping, which is very slow, or even kill processes when it runs out of memory. And one more tip from the documentation: a much bigger shared_buffers usually needs a bigger max_wal_size as well, to spread out the writing.",
+            "caption": "The rest of memory has important jobs too."
+          },
+          {
+            "label": "Try it",
+            "heading": "Checking and changing it",
+            "text": "Checking the current value is easy: SHOW shared_buffers. To change it, you can edit postgresql.conf, or use ALTER SYSTEM SET shared_buffers = '8GB'. Remember from the last video, ALTER SYSTEM writes into the auto conf file. Either way, plan a restart, and after it, run SHOW shared_buffers again to confirm the new value is really in use.",
+            "code": "SHOW shared_buffers;\nALTER SYSTEM SET shared_buffers = '8GB';",
+            "caption": "Then plan a restart: the new value applies only after it."
+          },
+          {
+            "label": "wal_buffers",
+            "heading": "The change log, in memory",
+            "text": "The second part of shared memory is wal_buffers. Before PostgreSQL changes any data, it first writes a short record of that change, called a WAL record, into the write ahead log. wal_buffers are where those records wait in memory, before they're written to the WAL files in the pg_wal folder on disk. When a transaction commits, its WAL records are written to disk, so the change is safe even if the server crashes a second later. We'll follow that journey step by step in the next video.",
+            "image": "/courses/postgresql/memory/13.webp"
+          },
+          {
+            "label": "Sizing wal_buffers",
+            "heading": "Leave it on automatic",
+            "text": "How big are wal_buffers? The default value is -1, which means automatic. PostgreSQL uses 1/32 of shared_buffers, but never less than 64 KB, and never more than the size of one WAL file, normally 16 MB. You may hear that 32 GB of shared_buffers gives 1 GB of wal_buffers. That's not right. Because of the cap, it gives 16 MB. For most servers, automatic is exactly what you want.",
+            "caption": "-1 means 1/32 of shared_buffers, capped at 16 MB."
+          },
+          {
+            "label": "More shared areas",
+            "heading": "Small caches for transaction status",
+            "text": "Shared memory also holds some smaller caches. One important one keeps the status of recent transactions: did transaction number 1,000 commit, or was it rolled back? On disk, this lives in a folder called pg_xact, and older material calls it the commit log, or CLOG. These are separate areas, not slices of wal_buffers, and in recent versions PostgreSQL sizes them automatically from shared_buffers. So as a beginner, you rarely need to touch them.",
+            "caption": "PostgreSQL sizes them automatically from shared_buffers."
+          },
+          {
+            "label": "Private memory",
+            "heading": "Each backend has its own memory",
+            "text": "Now, private memory. Remember, each connection has its own backend process. Each backend can use its own memory for its own work. Three settings control the main parts. work_mem, for sorting and hashing during queries. maintenance_work_mem, for big jobs like vacuum and building indexes. And temp_buffers, for temporary tables. None of this is reserved in advance. It's used only when needed, and released when the work is done.",
+            "image": "/courses/postgresql/memory/16.webp"
+          },
+          {
+            "label": "work_mem",
+            "heading": "Room to sort and hash",
+            "text": "work_mem is the amount of memory one sort or hash step can use before it has to spill to disk. Imagine sorting a pile of exam papers. If they fit on your desk, it's quick. If the pile is too big, you start spreading papers on the floor, sorting in batches, and merging them back. It still works, but it's much slower. When a sort doesn't fit in work_mem, PostgreSQL writes the extra to temporary files on disk. The default is 4 MB, and hash steps may use twice that.",
+            "image": "/courses/postgresql/memory/17.webp"
+          },
+          {
+            "label": "Who uses it?",
+            "heading": "ORDER BY, GROUP BY, DISTINCT, joins",
+            "text": "Which queries use work_mem? Not every query. Only the steps that sort or hash. For example, ORDER BY, GROUP BY, DISTINCT, some joins, and building hash tables for set operations. A simple lookup of one row by its primary key uses almost none. And one query can have several of these steps at once, each with its own work_mem allowance. That detail is very important, as we'll see in a moment.",
+            "caption": "Not every query: only steps that sort or hash."
+          },
+          {
+            "label": "Try it",
+            "heading": "Spotting a spill with EXPLAIN ANALYZE",
+            "text": "How do you know if a sort spilled to disk? Run the query with EXPLAIN ANALYZE, and look at the sort line. If it says \"external merge  Disk: 51200kB\", the sort didn't fit in work_mem, and used about 50 MB on disk. If it fit, you'd see \"quicksort  Memory\" instead. You can also set log_temp_files, so PostgreSQL logs every temporary file above a size you choose.",
+            "code": "Sort Method: external merge  Disk: 51200kB",
+            "caption": "In memory it would say: Sort Method: quicksort  Memory: ..."
+          },
+          {
+            "label": "The danger",
+            "heading": "work_mem multiplies",
+            "text": "Now the danger. work_mem is not a limit per server, or even per connection. It's per sort or hash step. Imagine 200 connections, each running a query with two sorts, and work_mem set to 64 MB. That's up to 25 GB, on a 32 GB server that already gave 8 GB to shared_buffers. The result could be heavy swapping, or the operating system killing processes. That's why a large server wide work_mem is risky.",
+            "image": "/courses/postgresql/memory/20.webp"
+          },
+          {
+            "label": "Be specific",
+            "heading": "Give more only where it's needed",
+            "text": "The good news is, you don't have to choose one value for everyone. Keep the server wide default small. Then give more where it's needed. With ALTER DATABASE, an analytics database can get 64 MB. With ALTER ROLE, the reporting user who runs big monthly reports can get 256 MB. And with set, one session can get more for one heavy query, just for as long as that session lasts. The most specific level wins.",
+            "image": "/courses/postgresql/memory/21.webp"
+          },
+          {
+            "label": "maintenance_work_mem",
+            "heading": "Memory for the big jobs",
+            "text": "Next, maintenance_work_mem. This is used by maintenance jobs: VACUUM, CREATE INDEX, adding a foreign key, and rebuilding indexes when you restore a dump. The default is 64 MB. Because only a few of these jobs run at the same time, it's safe to set it much higher than work_mem, for example 1 GB on a big server. A bigger value can make index builds and vacuum noticeably faster. You can also raise it just for your session, right before building a large index.",
+            "image": "/courses/postgresql/memory/22.webp"
+          },
+          {
+            "label": "autovacuum_work_mem",
+            "heading": "-1 means same as maintenance_work_mem",
+            "text": "There's a related setting called autovacuum_work_mem. Autovacuum is PostgreSQL's automatic cleaner, and it's switched on by default. We'll see it properly in the next video. Its default value is -1, which doesn't mean unlimited. It means: use the same value as maintenance_work_mem. Be careful though. Several autovacuum workers can run at once, three by default, and each one can use this much memory.",
+            "caption": "Each autovacuum worker can use this much."
+          },
+          {
+            "label": "temp_buffers",
+            "heading": "Only for temporary tables",
+            "text": "Next, temp_buffers. These are used only for temporary tables, tables that exist just for your session, and disappear when you log out. Each session can use up to 8 MB by default. Here's a common misunderstanding: temp_buffers are not used for big sorts, or for subquery results. When a sort or hash doesn't fit in work_mem, it spills to temporary files on disk, not to temp_buffers.",
+            "image": "/courses/postgresql/memory/24.webp"
+          },
+          {
+            "label": "effective_cache_size",
+            "heading": "A hint, not memory",
+            "text": "Now a setting that confuses many people: effective_cache_size. It sounds like memory, but PostgreSQL never allocates it. It's just a hint for the planner: roughly how much data is likely to be cached already, in shared_buffers plus the operating system's cache. A higher value makes index scans look cheaper, because the planner expects more of the index to be in memory. The default is 4 GB, and a common setting is about three quarters of the server's memory.",
+            "image": "/courses/postgresql/memory/25.webp"
+          },
+          {
+            "label": "Restart or reload?",
+            "heading": "Know which settings need a restart",
+            "text": "Which of today's settings need a restart? shared_buffers and wal_buffers are shared memory, so they need a restart. Their context in pg_settings says postmaster. Auto vacuum work_mem needs only a reload. And work_mem, maintenance_work_mem and effective_cache_size can be changed with a reload, or even with SET inside a single session. Always check the context column before you plan a change.",
+            "image": "/courses/postgresql/memory/26.webp"
+          },
+          {
+            "label": "A worked example",
+            "heading": "A starting point for 32 GB",
+            "text": "Let's put it together for a dedicated 32 GB server, with about 100 connections. shared_buffers: 8 GB, that's 25%. effective_cache_size: 24 GB, about three quarters. work_mem: 32 MB, kept small, and raised per role where needed. maintenance_work_mem: 1 GB. And wal_buffers left on automatic, which becomes 16 MB. These are starting points, not final answers. Measure, watch for spills and swapping, and adjust.",
+            "image": "/courses/postgresql/memory/27.webp"
+          },
+          {
+            "label": "Watch it",
+            "heading": "Measure before and after",
+            "text": "How do you know your settings are working? Watch a few signals. Is the server swapping? That means memory is overcommitted. Are many temporary files being written? Then some queries need more work_mem. And how often are pages found in shared_buffers rather than read from disk? pg_stat_database shows these numbers. Change one thing at a time, and compare before and after.",
+            "caption": "Swapping, temp files and cache hit ratio tell the story."
+          },
+          {
+            "label": "Coming from Oracle?",
+            "heading": "Familiar ideas, new names",
+            "text": "If you know Oracle, here's a quick map. shared_buffers are like the buffer cache in the SGA. wal_buffers are like the redo log buffer. work_mem is like the sort and hash areas in the PGA. But there are two big differences. PostgreSQL has no total limit like pga_aggregate_target, so you must plan the multiplication yourself. And there's no automatic memory tuning like memory_target. You set the values, and you watch them.",
+            "image": "/courses/postgresql/memory/29.webp"
+          },
+          {
+            "label": "Common mistakes",
+            "heading": "Four myths, busted",
+            "text": "Let's bust four myths you may hear. One: shared_buffers are only for internal operations. No, every normal query reads and changes data through them. Two: effective_cache_size reserves memory. No, it's only a hint. Three: wal_buffers are always 1/32 of shared_buffers. No, they're capped, normally at 16 MB. And four: big sorts use temp_buffers. No, they spill to temporary files on disk.",
+            "caption": "Shared buffers serve every query · ECS allocates nothing · wal_buffers caps at 16 MB · sorts don't use temp_buffers"
+          },
+          {
+            "label": "Interview questions",
+            "heading": "Questions you can now answer",
+            "text": "You can now answer some common interview questions. What are shared_buffers, and how would you size them? What's the default, and does changing it need a restart? What does work_mem control, and why is a large value risky? What's the difference between work_mem and maintenance_work_mem? What is effective_cache_size? And how would you find out whether a query's sort spilled to disk? Try answering each one out loud, in your own words.",
+            "caption": "shared_buffers sizing · work_mem risk · ECS · restart vs reload"
+          },
+          {
+            "label": "Recap",
+            "heading": "Shared, private, and a hint",
+            "text": "Let's recap. Memory is the countertop, disk is the storeroom. shared_buffers is PostgreSQL's shared data cache, used by every query, and it starts at around 25% of memory. wal_buffers hold change records until commit, sized automatically. work_mem is per sort or hash step, so keep it small and raise it where needed. maintenance_work_mem speeds up vacuum and index builds. temp_buffers are only for temporary tables. And effective_cache_size is a hint for the planner, not real memory.",
+            "caption": "Start shared_buffers at 25%, keep work_mem small, measure."
           }
         ]
       }
